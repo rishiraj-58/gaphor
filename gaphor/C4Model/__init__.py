@@ -4,3 +4,6 @@ import gaphor.C4Model.iconname
 import gaphor.C4Model.modelinglanguage
 
 __modeling_language__ = "C4Model"
+
+def test_function():
+    print("test_function")
