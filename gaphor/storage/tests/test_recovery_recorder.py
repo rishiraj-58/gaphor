@@ -322,3 +322,39 @@ def test_record_type_swapped(
     assert new_diagram
     assert isinstance(new_diagram, StyleSheet)
     assert all(isinstance(f, str) for f in recorder.events[-1]), recorder.events[-1]
+
+
+def test_record_pinned_state(
+    recorder, event_manager, element_factory, modeling_language
+):
+    """Test that pinned state changes are recorded and can be replayed."""
+    diagram = element_factory.create(Diagram)
+    class_item = diagram.create(ClassItem, subject=element_factory.create(UML.Class))
+    class_item.pinned = True
+
+    new_model = ElementFactory(event_manager)
+    replay_events(recorder.events[:], new_model, modeling_language)
+
+    new_class_item = new_model.lookup(class_item.id)
+
+    assert ("pu", class_item.id, True) in recorder.events
+    assert new_class_item._pinned is True
+
+
+def test_record_pinned_state_toggle(
+    recorder, event_manager, element_factory, modeling_language
+):
+    """Test that pinned state toggling is recorded correctly."""
+    diagram = element_factory.create(Diagram)
+    class_item = diagram.create(ClassItem, subject=element_factory.create(UML.Class))
+    class_item.pinned = True
+    class_item.pinned = False
+
+    new_model = ElementFactory(event_manager)
+    replay_events(recorder.events[:], new_model, modeling_language)
+
+    new_class_item = new_model.lookup(class_item.id)
+
+    assert ("pu", class_item.id, True) in recorder.events
+    assert ("pu", class_item.id, False) in recorder.events
+    assert new_class_item._pinned is False

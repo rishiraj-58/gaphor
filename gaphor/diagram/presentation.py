@@ -95,15 +95,6 @@ class HandlePositionUpdate:
     def _on_handle_position_update(self, position, old):
         for handle in self.handles():  # type: ignore[attr-defined]
             if handle.pos is position:
-                # Auto-pin when handle is manually moved (not during auto-layout)
-                if (
-                    old
-                    and hasattr(self, "_in_auto_layout")
-                    and not self._in_auto_layout  # type: ignore[attr-defined]
-                    and hasattr(self, "pinned")
-                    and not self.pinned  # type: ignore[attr-defined]
-                ):
-                    self.pinned = 1  # type: ignore[attr-defined]
                 self.handle(HandlePositionEvent(self, handle, old))  # type: ignore[attr-defined]
                 break
 

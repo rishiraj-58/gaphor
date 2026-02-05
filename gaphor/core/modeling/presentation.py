@@ -11,7 +11,7 @@ from gaphas.item import Matrices
 
 from gaphor.core.modeling.base import Base, Handler, Id, UnlinkEvent
 from gaphor.core.modeling.event import RevertibleEvent
-from gaphor.core.modeling.properties import attribute, relation_many, relation_one
+from gaphor.core.modeling.properties import relation_many, relation_one
 
 if TYPE_CHECKING:
     from gaphor.core.modeling.diagram import Diagram
@@ -37,7 +37,7 @@ class Presentation[S](Matrices, Base):
         super().__init__(id=id, model=diagram.model)
         self.diagram = diagram
         self._original_diagram: Diagram | None = diagram
-        self._in_auto_layout = False
+        self._pinned: bool = False
 
         def update(_event):
             self.request_update()
@@ -54,8 +54,18 @@ class Presentation[S](Matrices, Base):
     parent: relation_one[Presentation]
     children: relation_many[Presentation]
 
-    # When pinned is True, auto-layout will skip this element
-    pinned: attribute[int] = attribute("pinned", int, 0)
+    @property
+    def pinned(self) -> bool:
+        """Return True if this element is pinned (excluded from auto-layout)."""
+        return self._pinned
+
+    @pinned.setter
+    def pinned(self, value: bool) -> None:
+        """Set the pinned state of this element."""
+        if value != self._pinned:
+            old_value = self._pinned
+            self._pinned = value
+            self.handle(PinnedUpdated(self, old_value, value))
 
     def request_update(self) -> None:
         """Mark this presentation object for update.
@@ -104,9 +114,16 @@ class Presentation[S](Matrices, Base):
         """
         return ()
 
+    def save(self, save_func):
+        super().save(save_func)
+        if self._pinned:
+            save_func("pinned", self._pinned)
+
     def load(self, name, value):
         if name == "matrix":
             self.matrix.set(*literal_eval(value))
+        elif name == "pinned":
+            self._pinned = literal_eval(value) if isinstance(value, str) else value
         elif name == "parent":
             if self.parent and self.parent is not value:
                 raise ValueError(f"Parent can not be set twice on {self}")
@@ -160,9 +177,6 @@ class Presentation[S](Matrices, Base):
             self.matrix_i2c.set(*self.matrix)
         self.request_update()
         if matrix is self.matrix:
-            # Auto-pin when manually moved (not during auto-layout)
-            if not self._in_auto_layout and old_value and not self.pinned:
-                self.pinned = 1
             self.handle(MatrixUpdated(self, old_value))
 
 
@@ -174,3 +188,15 @@ class MatrixUpdated(RevertibleEvent):
 
     def revert(self, target):
         target.matrix.set(*self.old_value)
+
+
+class PinnedUpdated(RevertibleEvent):
+    """Event fired when a presentation's pinned state changes."""
+
+    def __init__(self, element, old_value, new_value):
+        super().__init__(element)
+        self.old_value = old_value
+        self.new_value = new_value
+
+    def revert(self, target):
+        target._pinned = self.old_value
