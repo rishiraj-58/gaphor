@@ -113,9 +113,11 @@ class AutoLayout:
             else Matrix()
         )
 
-        # First record original positions for involved lines
+        # First record original positions for involved lines (skip pinned)
         for edge in rendered_graph.get_edges():
             if presentation := presentation_for_object(diagram, edge):
+                if presentation.pinned:
+                    continue
                 for handle in (presentation.head, presentation.tail):
                     if cinfo := diagram.connections.get_connection(handle):
                         self.handle(
@@ -133,6 +135,8 @@ class AutoLayout:
             if presentation := presentation_for_object(
                 diagram, subgraph.get_node("graph")[0]
             ):
+                if presentation.pinned:
+                    continue
                 if bb := subgraph.get_node("graph")[0].get("bb"):
                     x, y, w, h = parse_bb(bb, height)
                     presentation.handles()[NW].pos = (0.0, 0.0)
@@ -156,6 +160,8 @@ class AutoLayout:
                 continue
 
             if presentation := presentation_for_object(diagram, node):
+                if presentation.pinned:
+                    continue
                 center = parse_point(node.get_pos(), height)
                 if isinstance(presentation, ElementPresentation):
                     # Normalize handle placement
@@ -181,6 +187,8 @@ class AutoLayout:
 
         for edge in rendered_graph.get_edges():
             if presentation := presentation_for_object(diagram, edge):
+                if presentation.pinned:
+                    continue
                 presentation.orthogonal = False
 
                 reverse = isinstance(presentation, GeneralizationItem)

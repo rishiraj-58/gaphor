@@ -324,3 +324,77 @@ def test_undo_nested_element(diagram, undo_manager, event_manager):
     assert new_child.parent is new_parent
     assert tuple(new_parent.matrix_i2c) == (1.0, 0, 0, 1, 100, 100)
     assert tuple(new_child.matrix_i2c) == (1.0, 0, 0, 1, 200, 200)
+
+
+def test_pinned_property_undo(diagram, undo_manager, event_manager):
+    """Test that pinned property changes can be undone."""
+    with Transaction(event_manager):
+        element = diagram.create(ElementPresentation)
+
+    assert element.pinned is False
+
+    with Transaction(event_manager):
+        element.pinned = True
+
+    assert element.pinned is True
+
+    undo_manager.undo_transaction()
+
+    assert element.pinned is False
+
+    undo_manager.redo_transaction()
+
+    assert element.pinned is True
+
+
+def test_pinned_property_undo_line(diagram, undo_manager, event_manager):
+    """Test that pinned property changes on lines can be undone."""
+    with Transaction(event_manager):
+        line = diagram.create(LinePresentation)
+
+    assert line.pinned is False
+
+    with Transaction(event_manager):
+        line.pinned = True
+
+    assert line.pinned is True
+
+    undo_manager.undo_transaction()
+
+    assert line.pinned is False
+
+    undo_manager.redo_transaction()
+
+    assert line.pinned is True
+
+
+def test_pinned_property_multiple_changes_undo(diagram, undo_manager, event_manager):
+    """Test that multiple pinned property changes can be undone in sequence."""
+    with Transaction(event_manager):
+        element = diagram.create(ElementPresentation)
+
+    # First change
+    with Transaction(event_manager):
+        element.pinned = True
+
+    # Second change (back to false)
+    with Transaction(event_manager):
+        element.pinned = False
+
+    assert element.pinned is False
+
+    # Undo second change
+    undo_manager.undo_transaction()
+    assert element.pinned is True
+
+    # Undo first change
+    undo_manager.undo_transaction()
+    assert element.pinned is False
+
+    # Redo first change
+    undo_manager.redo_transaction()
+    assert element.pinned is True
+
+    # Redo second change
+    undo_manager.redo_transaction()
+    assert element.pinned is False

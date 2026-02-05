@@ -23,7 +23,7 @@ from gaphor.core.modeling import (
     RedefinedSet,
     swap_element_type,
 )
-from gaphor.core.modeling.presentation import MatrixUpdated
+from gaphor.core.modeling.presentation import MatrixUpdated, PinnedUpdated
 from gaphor.diagram.connectors import (
     ItemConnected,
     ItemDisconnected,
@@ -294,6 +294,7 @@ class Recorder:
         event_manager.subscribe(self.on_association_set_event)
         event_manager.subscribe(self.on_association_delete_event)
         event_manager.subscribe(self.on_matrix_updated)
+        event_manager.subscribe(self.on_pinned_updated)
         event_manager.subscribe(self.on_type_swapped_event)
         event_manager.subscribe(self.on_item_connected)
         event_manager.subscribe(self.on_item_disconnected)
@@ -309,6 +310,7 @@ class Recorder:
         event_manager.unsubscribe(self.on_association_set_event)
         event_manager.unsubscribe(self.on_association_delete_event)
         event_manager.unsubscribe(self.on_matrix_updated)
+        event_manager.unsubscribe(self.on_pinned_updated)
         event_manager.unsubscribe(self.on_type_swapped_event)
         event_manager.unsubscribe(self.on_item_connected)
         event_manager.unsubscribe(self.on_item_disconnected)
@@ -384,6 +386,10 @@ class Recorder:
     @event_handler(MatrixUpdated)
     def on_matrix_updated(self, event: MatrixUpdated):
         self.events.append(("mu", event.element.id, event.new_value))
+
+    @event_handler(PinnedUpdated)
+    def on_pinned_updated(self, event: PinnedUpdated):
+        self.events.append(("pu", event.element.id, event.new_value))
 
     @event_handler(ElementTypeUpdated)
     def on_type_swapped_event(self, event: ElementTypeUpdated):
@@ -483,6 +489,9 @@ def replay_events(events, element_factory, modeling_language):
             case ("mu", element_id, matrix):
                 element = element_factory.lookup(element_id)
                 element.matrix.set(*matrix)
+            case ("pu", element_id, pinned):
+                element = element_factory.lookup(element_id)
+                element._pinned = pinned
             case ("hp", element_id, handle_index, pos):
                 element = element_factory.lookup(element_id)
                 element.handles()[handle_index].pos = pos

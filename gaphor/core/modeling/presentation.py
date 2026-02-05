@@ -37,6 +37,7 @@ class Presentation[S](Matrices, Base):
         super().__init__(id=id, model=diagram.model)
         self.diagram = diagram
         self._original_diagram: Diagram | None = diagram
+        self._pinned: bool = False
 
         def update(_event):
             self.request_update()
@@ -52,6 +53,19 @@ class Presentation[S](Matrices, Base):
     diagram: relation_one[Diagram]
     parent: relation_one[Presentation]
     children: relation_many[Presentation]
+
+    @property
+    def pinned(self) -> bool:
+        """Return True if this element is pinned (excluded from auto-layout)."""
+        return self._pinned
+
+    @pinned.setter
+    def pinned(self, value: bool) -> None:
+        """Set the pinned state of this element."""
+        if value != self._pinned:
+            old_value = self._pinned
+            self._pinned = value
+            self.handle(PinnedUpdated(self, old_value, value))
 
     def request_update(self) -> None:
         """Mark this presentation object for update.
@@ -100,9 +114,16 @@ class Presentation[S](Matrices, Base):
         """
         return ()
 
+    def save(self, save_func):
+        super().save(save_func)
+        if self._pinned:
+            save_func("pinned", self._pinned)
+
     def load(self, name, value):
         if name == "matrix":
             self.matrix.set(*literal_eval(value))
+        elif name == "pinned":
+            self._pinned = literal_eval(value) if isinstance(value, str) else value
         elif name == "parent":
             if self.parent and self.parent is not value:
                 raise ValueError(f"Parent can not be set twice on {self}")
@@ -167,3 +188,15 @@ class MatrixUpdated(RevertibleEvent):
 
     def revert(self, target):
         target.matrix.set(*self.old_value)
+
+
+class PinnedUpdated(RevertibleEvent):
+    """Event fired when a presentation's pinned state changes."""
+
+    def __init__(self, element, old_value, new_value):
+        super().__init__(element)
+        self.old_value = old_value
+        self.new_value = new_value
+
+    def revert(self, target):
+        target._pinned = self.old_value
