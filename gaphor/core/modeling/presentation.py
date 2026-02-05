@@ -55,7 +55,7 @@ class Presentation[S](Matrices, Base):
     children: relation_many[Presentation]
 
     # When pinned is True, auto-layout will skip this element
-    pinned: attribute[int] = attribute("pinned", int, 0)
+    pinned: attribute[bool] = attribute("pinned", bool, False)
 
     def request_update(self) -> None:
         """Mark this presentation object for update.
@@ -162,7 +162,7 @@ class Presentation[S](Matrices, Base):
         if matrix is self.matrix:
             # Auto-pin when manually moved (not during auto-layout)
             if not self._in_auto_layout and old_value and not self.pinned:
-                self.pinned = 1
+                self.pinned = True
             self.handle(MatrixUpdated(self, old_value))
 
 

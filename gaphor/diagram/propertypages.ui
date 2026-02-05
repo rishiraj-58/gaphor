@@ -334,4 +334,40 @@
     </style>
   </object>
 
+  <object class="GtkBox" id="auto-layout-editor">
+    <property name="orientation">vertical</property>
+    <child>
+      <object class="GtkLabel">
+        <property name="label" translatable="yes">Auto Layout</property>
+        <property name="xalign">0</property>
+        <style>
+          <class name="title"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkBox">
+        <property name="margin_top">6</property>
+        <property name="margin_bottom">6</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="label" translatable="yes">Pinned (exclude from auto layout)</property>
+            <property name="halign">start</property>
+            <property name="hexpand">1</property>
+            <property name="hexpand-set">1</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkSwitch" id="pinned-switch">
+            <property name="halign">end</property>
+            <signal name="notify::active" handler="pinned-changed" swapped="no"/>
+          </object>
+        </child>
+      </object>
+    </child>
+    <style>
+      <class name="propertypage"/>
+    </style>
+  </object>
+
 </interface>

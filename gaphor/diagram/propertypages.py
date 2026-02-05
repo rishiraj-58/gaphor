@@ -291,6 +291,51 @@ class NotePropertyPage(PropertyPageBase):
             )
 
 
+@PropertyPages.register(Presentation)
+class AutoLayoutPropertyPage(PropertyPageBase):
+    """Property page for auto-layout pinning.
+
+    Allows users to pin/unpin elements to exclude them from auto-layout.
+    """
+
+    order = 350
+
+    def __init__(self, item, event_manager):
+        super().__init__()
+        self.item = item
+        self.event_manager = event_manager
+        self.watcher = item.watcher() if item else None
+
+    def construct(self):
+        if not self.item or not hasattr(self.item, "pinned"):
+            return None
+
+        builder = new_builder(
+            "auto-layout-editor",
+            signals={
+                "pinned-changed": (self._on_pinned_change,),
+            },
+        )
+
+        pinned_switch = builder.get_object("pinned-switch")
+        pinned_switch.set_active(bool(self.item.pinned))
+
+        @handler_blocking(pinned_switch, "notify::active", self._on_pinned_change)
+        def handler(event):
+            if event.element is self.item:
+                pinned_switch.set_active(bool(event.new_value))
+
+        self.watcher.watch("pinned", handler)
+
+        return unsubscribe_all_on_destroy(
+            builder.get_object("auto-layout-editor"), self.watcher
+        )
+
+    def _on_pinned_change(self, switch, gparam):
+        with Transaction(self.event_manager):
+            self.item.pinned = switch.get_active()
+
+
 @PropertyPages.register(Base)
 class InternalsPropertyPage(PropertyPageBase):
     """Show internals.
