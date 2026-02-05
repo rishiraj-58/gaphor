@@ -184,6 +184,8 @@ class StyledItem:
         self.diagram = item.diagram
         self.selection = selection
         self.pseudo: str | None = None
+        # Build state tuple with pinned state (always check, not just with selection)
+        pinned_state = "pinned" if item.pinned else ""
         self._state = (
             (
                 "active" if item in selection.selected_items else "",
@@ -191,9 +193,10 @@ class StyledItem:
                 "hover" if item is selection.hovered_item else "",
                 "drop" if item is selection.dropzone_item else "",
                 "disabled" if item in selection.grayed_out_items else "",
+                pinned_state,
             )
             if selection
-            else ()
+            else (pinned_state,)
         )
 
     def name(self) -> str:

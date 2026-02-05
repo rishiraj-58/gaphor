@@ -617,3 +617,66 @@ def test_unpin_then_auto_layout_moves_element(diagram, create, event_manager):
 
     # After unpinning, the element should not be re-pinned by auto-layout
     assert c1.pinned is False
+
+
+# Tests for CSS visual indicator
+
+
+def test_pinned_state_in_styled_item(diagram, create, event_manager):
+    """Test that pinned state is reflected in StyledItem for CSS styling."""
+    from gaphor.core.modeling.diagram import StyledItem
+
+    c1 = create(ClassItem, UML.Class)
+
+    # Initially not pinned
+    styled = StyledItem(c1)
+    assert "pinned" not in styled.state() or styled.state()[-1] == ""
+
+    # Pin the element
+    with Transaction(event_manager):
+        c1.pinned = True
+
+    styled = StyledItem(c1)
+    assert "pinned" in styled.state()
+
+
+def test_unpinned_state_in_styled_item(diagram, create, event_manager):
+    """Test that unpinned state is reflected in StyledItem."""
+    from gaphor.core.modeling.diagram import StyledItem
+
+    c1 = create(ClassItem, UML.Class)
+
+    # Pin then unpin
+    with Transaction(event_manager):
+        c1.pinned = True
+
+    with Transaction(event_manager):
+        c1.pinned = False
+
+    styled = StyledItem(c1)
+    # The pinned state should be empty string when not pinned
+    states = [s for s in styled.state() if s]
+    assert "pinned" not in states
+
+
+def test_styled_item_state_with_selection(diagram, create, event_manager):
+    """Test StyledItem state includes both selection and pinned states."""
+    from gaphor.core.modeling.diagram import StyledItem
+    from gaphor.diagram.selection import Selection
+
+    c1 = create(ClassItem, UML.Class)
+    selection = Selection()
+
+    # Pin the element
+    with Transaction(event_manager):
+        c1.pinned = True
+
+    # Add to selection
+    selection.select_items(c1)
+
+    styled = StyledItem(c1, selection)
+    states = styled.state()
+
+    # Should have both active and pinned states
+    assert "active" in states
+    assert "pinned" in states

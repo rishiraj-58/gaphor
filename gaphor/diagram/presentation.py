@@ -102,12 +102,11 @@ class HandlePositionUpdate:
         for handle in self.handles():  # type: ignore[attr-defined]
             if handle.pos is position:
                 # Auto-pin when handle is manually moved (not during auto-layout)
+                # All Presentation subclasses have _in_auto_layout and pinned attributes
                 if (
                     old
-                    and hasattr(self, "_in_auto_layout")
-                    and not self._in_auto_layout  # type: ignore[attr-defined]
-                    and hasattr(self, "pinned")
-                    and not self.pinned  # type: ignore[attr-defined]
+                    and not getattr(self, "_in_auto_layout", False)
+                    and not getattr(self, "pinned", False)
                 ):
                     self.pinned = True  # type: ignore[attr-defined]
                 self.handle(HandlePositionEvent(self, handle, old))  # type: ignore[attr-defined]

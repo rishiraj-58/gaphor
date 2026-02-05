@@ -14,6 +14,15 @@
   opacity: 0.5;
 }
 
+/* Pinned elements (excluded from auto-layout) */
+:pinned {
+  dash-style: 2 2;
+}
+
+:pinned:active {
+  dash-style: 0;
+}
+
 @media light-mode {
   * {
     --opaque-background-color: #fafafa;
