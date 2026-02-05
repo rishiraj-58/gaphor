@@ -88,7 +88,7 @@ class AutoLayoutService(Service, ActionProvider):
             for item in selected_items:
                 if hasattr(item, "pinned"):
                     # Toggle: if pinned, unpin; if not pinned, pin
-                    item.pinned = 0 if item.pinned else 1
+                    item.pinned = not item.pinned
 
     @action(
         name="unpin-all-elements",
@@ -106,7 +106,7 @@ class AutoLayoutService(Service, ActionProvider):
         with Transaction(self.event_manager):
             for presentation in diagram.ownedPresentation:
                 if hasattr(presentation, "pinned") and presentation.pinned:
-                    presentation.pinned = 0
+                    presentation.pinned = False
 
     def layout(self, diagram: Diagram, splines="polyline"):
         auto_layout = AutoLayout(self.event_manager, self.dump_gv)

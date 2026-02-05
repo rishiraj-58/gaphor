@@ -103,7 +103,7 @@ class HandlePositionUpdate:
                     and hasattr(self, "pinned")
                     and not self.pinned  # type: ignore[attr-defined]
                 ):
-                    self.pinned = 1  # type: ignore[attr-defined]
+                    self.pinned = True  # type: ignore[attr-defined]
                 self.handle(HandlePositionEvent(self, handle, old))  # type: ignore[attr-defined]
                 break
 
