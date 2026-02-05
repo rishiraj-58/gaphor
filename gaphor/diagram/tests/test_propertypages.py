@@ -1,13 +1,15 @@
 from gaphor.core.modeling import Diagram
 from gaphor.diagram.general import Line
 from gaphor.diagram.propertypages import (
+    AutoLayoutPropertyPage,
     InternalsPropertyPage,
     LineStylePage,
     NamePropertyPage,
     NotePropertyPage,
 )
 from gaphor.diagram.tests.fixtures import find
-from gaphor.UML import Comment
+from gaphor.UML import Class, Comment
+from gaphor.UML.classes import ClassItem
 from gaphor.UML.general import CommentItem
 
 
@@ -82,3 +84,71 @@ def test_internals_page_for_presentation(create):
 
     assert "CommentItem" in text
     assert "gaphor.UML.Comment" in text
+
+
+def test_auto_layout_page_for_presentation(create, event_manager):
+    """Test that auto-layout property page shows pinned switch."""
+    item = create(ClassItem, Class)
+    property_page = AutoLayoutPropertyPage(item, event_manager)
+    widget = property_page.construct()
+
+    assert widget is not None
+    pinned_switch = find(widget, "pinned-switch")
+    assert pinned_switch is not None
+    assert pinned_switch.get_active() is False
+
+
+def test_auto_layout_page_toggle_pinned(create, event_manager):
+    """Test toggling pinned state via property page."""
+    item = create(ClassItem, Class)
+    property_page = AutoLayoutPropertyPage(item, event_manager)
+    widget = property_page.construct()
+
+    pinned_switch = find(widget, "pinned-switch")
+
+    # Initially not pinned
+    assert item.pinned is False
+    assert pinned_switch.get_active() is False
+
+    # Toggle pinned on
+    pinned_switch.set_active(True)
+    assert item.pinned is True
+
+    # Toggle pinned off
+    pinned_switch.set_active(False)
+    assert item.pinned is False
+
+
+def test_auto_layout_page_reflects_pinned_state(create, event_manager):
+    """Test that property page reflects current pinned state."""
+    item = create(ClassItem, Class)
+
+    # Pre-set pinned state
+    item.pinned = True
+
+    property_page = AutoLayoutPropertyPage(item, event_manager)
+    widget = property_page.construct()
+
+    pinned_switch = find(widget, "pinned-switch")
+    assert pinned_switch.get_active() is True
+
+
+def test_auto_layout_page_for_line(diagram, event_manager):
+    """Test that auto-layout property page works for line items."""
+    item = diagram.create(Line)
+    property_page = AutoLayoutPropertyPage(item, event_manager)
+    widget = property_page.construct()
+
+    assert widget is not None
+    pinned_switch = find(widget, "pinned-switch")
+    assert pinned_switch is not None
+
+
+def test_auto_layout_page_for_non_presentation(element_factory, event_manager):
+    """Test that auto-layout property page returns None for non-presentations."""
+    comment = element_factory.create(Comment)
+    property_page = AutoLayoutPropertyPage(comment, event_manager)
+    widget = property_page.construct()
+
+    # Non-presentation items don't have pinned attribute
+    assert widget is None

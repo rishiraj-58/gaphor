@@ -293,12 +293,9 @@ class NotePropertyPage(PropertyPageBase):
 
 @PropertyPages.register(Presentation)
 class AutoLayoutPropertyPage(PropertyPageBase):
-    """Property page for auto-layout pinning.
+    """Property page for auto-layout settings (pinned state)."""
 
-    Allows users to pin/unpin elements to exclude them from auto-layout.
-    """
-
-    order = 350
+    order = 450
 
     def __init__(self, item, event_manager):
         super().__init__()
@@ -307,23 +304,29 @@ class AutoLayoutPropertyPage(PropertyPageBase):
         self.watcher = item.watcher() if item else None
 
     def construct(self):
-        if not self.item or not hasattr(self.item, "pinned"):
+        if not self.item:
             return None
 
+        if not hasattr(self.item, "pinned"):
+            return None
+
+        assert self.watcher
         builder = new_builder(
             "auto-layout-editor",
             signals={
-                "pinned-changed": (self._on_pinned_change,),
+                "pinned-changed": (self._on_pinned_changed,),
             },
         )
 
         pinned_switch = builder.get_object("pinned-switch")
         pinned_switch.set_active(bool(self.item.pinned))
 
-        @handler_blocking(pinned_switch, "notify::active", self._on_pinned_change)
+        @handler_blocking(pinned_switch, "notify::active", self._on_pinned_changed)
         def handler(event):
             if event.element is self.item:
-                pinned_switch.set_active(bool(event.new_value))
+                new_value = bool(event.new_value) if event.new_value is not None else False
+                if pinned_switch.get_active() != new_value:
+                    pinned_switch.set_active(new_value)
 
         self.watcher.watch("pinned", handler)
 
@@ -331,7 +334,7 @@ class AutoLayoutPropertyPage(PropertyPageBase):
             builder.get_object("auto-layout-editor"), self.watcher
         )
 
-    def _on_pinned_change(self, switch, gparam):
+    def _on_pinned_changed(self, switch, gparam):
         with Transaction(self.event_manager):
             self.item.pinned = switch.get_active()
 

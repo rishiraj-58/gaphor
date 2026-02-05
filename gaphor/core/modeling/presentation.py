@@ -173,4 +173,10 @@ class MatrixUpdated(RevertibleEvent):
         self.new_value = element.matrix.tuple()
 
     def revert(self, target):
-        target.matrix.set(*self.old_value)
+        # Prevent auto-pinning during undo/redo operations
+        original_auto_layout = getattr(target, "_in_auto_layout", False)
+        target._in_auto_layout = True
+        try:
+            target.matrix.set(*self.old_value)
+        finally:
+            target._in_auto_layout = original_auto_layout
