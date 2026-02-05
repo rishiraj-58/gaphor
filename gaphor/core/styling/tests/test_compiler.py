@@ -270,7 +270,7 @@ def test_first_child_selector():
 
 @pytest.mark.parametrize(
     "state",
-    ["hover", "focus", "active", "drop", "disabled"],
+    ["hover", "focus", "active", "drop", "disabled", "pinned"],
 )
 def test_hovered_pseudo_selector(state):
     css = f":{state} {{}}"
@@ -430,3 +430,15 @@ def test_media_query(css):
 def test_invalid_media_query(css, exc_type):
     with pytest.raises(exc_type):
         next(compile_style_sheet(css))
+
+
+def test_pinned_pseudo_selector_with_color():
+    """Test that pinned pseudo-class can be styled with color."""
+    css = ":pinned { color: #6a4c93; }"
+
+    selector, declarations = next(compile_style_sheet(css))
+
+    assert selector(Node("node", state=("pinned",)))
+    assert not selector(Node("node", state=()))
+    # Color should be parsed as RGBA tuple
+    assert "color" in declarations

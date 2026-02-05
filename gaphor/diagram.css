@@ -14,6 +14,17 @@
   opacity: 0.5;
 }
 
+/* Pinned elements (excluded from auto-layout) - subtle purple tint */
+:pinned {
+  color: #6a4c93;
+}
+
+@media dark-mode {
+  :pinned {
+    color: #b185db;
+  }
+}
+
 @media light-mode {
   * {
     --opaque-background-color: #fafafa;

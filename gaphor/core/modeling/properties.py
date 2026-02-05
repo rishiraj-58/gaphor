@@ -254,13 +254,6 @@ class attribute[T](umlproperty):
                 else int(value)
             )
 
-        elif self.type is bool and isinstance(value, str | int):
-            # Handle string/int to bool conversion for loading
-            if isinstance(value, str):
-                value = value.lower() not in ("false", "0", "")
-            else:
-                value = bool(value)
-
         if value == self.get(obj):
             return
 

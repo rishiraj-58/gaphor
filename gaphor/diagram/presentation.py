@@ -81,8 +81,14 @@ class HandlePositionEvent(RevertibleEvent):
         self.new_value = handle.pos.tuple()
 
     def revert(self, target):
-        target.handles()[self.handle_index].pos = self.old_value
-        target.request_update()
+        # Prevent auto-pinning during undo/redo operations
+        original_auto_layout = getattr(target, "_in_auto_layout", False)
+        target._in_auto_layout = True
+        try:
+            target.handles()[self.handle_index].pos = self.old_value
+            target.request_update()
+        finally:
+            target._in_auto_layout = original_auto_layout
 
 
 class HandlePositionUpdate:

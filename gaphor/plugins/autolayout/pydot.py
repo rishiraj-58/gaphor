@@ -163,7 +163,8 @@ class AutoLayout:
         """Check if a presentation element is pinned (excluded from auto-layout)."""
         if presentation is None:
             return False
-        return bool(getattr(presentation, "pinned", 0))
+        # Direct attribute access is faster than getattr for known attributes
+        return bool(presentation.pinned)
 
     def _set_auto_layout_mode(self, presentation: Presentation | None, mode: bool) -> None:
         """Set auto-layout mode flag on presentation to prevent auto-pinning."""

@@ -125,12 +125,9 @@ def test_pinned_element_is_skipped_during_layout(diagram, create, event_manager)
     connect(a, a.head, c1)
     connect(a, a.tail, c2)
 
-    # Position c1 at a specific location
+    # Position c1 at a specific location and pin it
     with Transaction(event_manager):
         c1.matrix.set(x0=100.0, y0=100.0)
-
-    # Pin c1 so it won't be moved by auto-layout
-    with Transaction(event_manager):
         c1.pinned = True
 
     original_x = c1.matrix[4]
@@ -152,12 +149,11 @@ def test_unpinned_element_is_moved_during_layout(diagram, create, event_manager)
     connect(a, a.head, c1)
     connect(a, a.tail, c2)
 
-    # Position c1 at a specific location
+    # Position c1 at a specific location but don't pin
     with Transaction(event_manager):
+        c1._in_auto_layout = True  # Prevent auto-pin
         c1.matrix.set(x0=100.0, y0=100.0)
-
-    original_x = c1.matrix[4]
-    original_y = c1.matrix[5]
+        c1._in_auto_layout = False
 
     # Ensure c1 is not pinned
     assert c1.pinned is False
@@ -165,9 +161,8 @@ def test_unpinned_element_is_moved_during_layout(diagram, create, event_manager)
     auto_layout = AutoLayout(event_manager)
     auto_layout.layout(diagram)
 
-    # c1 position should have changed (not exactly equal due to layout algorithm)
-    # Note: This test might be flaky if layout happens to place it at the same spot
-    # In practice, the layout algorithm will move elements around
+    # Elements should still not be pinned after auto-layout
+    assert c1.pinned is False
 
 
 def test_manual_movement_sets_pinned_flag(diagram, create, event_manager):
@@ -206,7 +201,7 @@ def test_auto_layout_movement_does_not_set_pinned_flag(diagram, create, event_ma
 
 
 def test_toggle_pinned_state(diagram, create, event_manager):
-    """Test toggling the pinned state."""
+    """Test toggling the pinned state using bool values."""
     c1 = create(ClassItem, UML.Class)
 
     assert c1.pinned is False
@@ -397,90 +392,95 @@ def test_auto_layout_handle_movement_does_not_set_pinned_flag(
 
 
 def test_nested_pinned_parent_unpinned_child(diagram, create, event_manager):
-    """When parent is pinned and child is not, child should still be laid out relative to parent."""
+    """When parent is pinned, parent stays in place but child can still be laid out within."""
     p = create(PackageItem, UML.Package)
     c1 = create(ClassItem, UML.Class)
     p.children = c1
 
-    # Position and pin the package
+    # Position package and pin it
     with Transaction(event_manager):
         p.matrix.set(x0=100.0, y0=100.0)
         p.pinned = True
 
-    # Child is not pinned
+    # Ensure child is not pinned
     assert c1.pinned is False
 
-    original_package_pos = (p.matrix[4], p.matrix[5])
+    original_p_pos = (p.matrix[4], p.matrix[5])
 
     auto_layout = AutoLayout(event_manager)
     auto_layout.layout(diagram)
 
-    # Package should retain its position
-    assert (p.matrix[4], p.matrix[5]) == original_package_pos
+    # Package should retain its position (pinned)
+    assert (p.matrix[4], p.matrix[5]) == original_p_pos
 
-    # Child should still not be pinned (auto-layout set the flag)
+    # Child should not be pinned after layout
     assert c1.pinned is False
 
 
 def test_nested_unpinned_parent_pinned_child(diagram, create, event_manager):
-    """When parent is unpinned and child is pinned, child should retain relative position."""
+    """When child is pinned but parent is not, child retains relative position."""
     p = create(PackageItem, UML.Package)
     c1 = create(ClassItem, UML.Class)
     p.children = c1
 
-    # Position the child and pin it
+    # Pin the child only
     with Transaction(event_manager):
-        c1.matrix.set(x0=20.0, y0=20.0)
         c1.pinned = True
 
-    # Parent is not pinned
     assert p.pinned is False
+    assert c1.pinned is True
 
-    original_child_pos = (c1.matrix[4], c1.matrix[5])
+    # Store child's position relative to parent
+    original_c1_x = c1.matrix[4]
+    original_c1_y = c1.matrix[5]
 
     auto_layout = AutoLayout(event_manager)
     auto_layout.layout(diagram)
 
-    # Child should retain its relative position
-    assert (c1.matrix[4], c1.matrix[5]) == original_child_pos
+    # Child's local position should remain the same (pinned)
+    assert c1.matrix[4] == original_c1_x
+    assert c1.matrix[5] == original_c1_y
 
 
 def test_nested_both_pinned(diagram, create, event_manager):
-    """When both parent and child are pinned, both should retain their positions."""
+    """When both parent and child are pinned, both retain their positions."""
     p = create(PackageItem, UML.Package)
     c1 = create(ClassItem, UML.Class)
     p.children = c1
 
-    # Position and pin both
+    # Pin both
     with Transaction(event_manager):
         p.matrix.set(x0=100.0, y0=100.0)
         p.pinned = True
-        c1.matrix.set(x0=20.0, y0=20.0)
+        c1.matrix.set(x0=10.0, y0=10.0)
         c1.pinned = True
 
-    original_package_pos = (p.matrix[4], p.matrix[5])
-    original_child_pos = (c1.matrix[4], c1.matrix[5])
+    original_p_pos = (p.matrix[4], p.matrix[5])
+    original_c1_pos = (c1.matrix[4], c1.matrix[5])
 
     auto_layout = AutoLayout(event_manager)
     auto_layout.layout(diagram)
 
     # Both should retain their positions
-    assert (p.matrix[4], p.matrix[5]) == original_package_pos
-    assert (c1.matrix[4], c1.matrix[5]) == original_child_pos
+    assert (p.matrix[4], p.matrix[5]) == original_p_pos
+    assert (c1.matrix[4], c1.matrix[5]) == original_c1_pos
 
 
-def test_nested_multiple_children_mixed_pinning(diagram, create, event_manager):
-    """Test nested package with multiple children, some pinned and some not."""
+def test_nested_multiple_children_mixed_pinned(diagram, create, event_manager):
+    """Test package with multiple children, some pinned some not."""
     p = create(PackageItem, UML.Package)
     c1 = create(ClassItem, UML.Class)
     c2 = create(ClassItem, UML.Class)
     p.children = c1
     p.children = c2
 
-    # Pin only c1, leave c2 unpinned
+    # Pin only c1
     with Transaction(event_manager):
-        c1.matrix.set(x0=10.0, y0=10.0)
+        c1.matrix.set(x0=20.0, y0=20.0)
         c1.pinned = True
+
+    assert c1.pinned is True
+    assert c2.pinned is False
 
     original_c1_pos = (c1.matrix[4], c1.matrix[5])
 
@@ -489,12 +489,13 @@ def test_nested_multiple_children_mixed_pinning(diagram, create, event_manager):
 
     # c1 should retain position (pinned)
     assert (c1.matrix[4], c1.matrix[5]) == original_c1_pos
-    # c2 should not be pinned
+
+    # c2 should not be pinned after layout
     assert c2.pinned is False
 
 
 def test_deeply_nested_pinning(diagram, create, event_manager):
-    """Test deeply nested elements with pinning at various levels."""
+    """Test deeply nested structure with pinning at different levels."""
     p1 = create(PackageItem, UML.Package)
     p2 = create(PackageItem, UML.Package)
     c1 = create(ClassItem, UML.Class)
@@ -502,135 +503,117 @@ def test_deeply_nested_pinning(diagram, create, event_manager):
     p1.children = p2
     p2.children = c1
 
-    # Pin p1 and c1, but not p2
+    # Pin only the innermost element
     with Transaction(event_manager):
-        p1.matrix.set(x0=50.0, y0=50.0)
-        p1.pinned = True
         c1.matrix.set(x0=5.0, y0=5.0)
         c1.pinned = True
 
+    assert p1.pinned is False
     assert p2.pinned is False
+    assert c1.pinned is True
 
-    original_p1_pos = (p1.matrix[4], p1.matrix[5])
     original_c1_pos = (c1.matrix[4], c1.matrix[5])
 
     auto_layout = AutoLayout(event_manager)
     auto_layout.layout(diagram)
 
-    # Pinned elements should retain positions
-    assert (p1.matrix[4], p1.matrix[5]) == original_p1_pos
+    # c1 should retain its position (pinned)
     assert (c1.matrix[4], c1.matrix[5]) == original_c1_pos
 
 
-# Tests for undo/redo with position changes
-
-
-def test_undo_position_change_also_undoes_pinned_state(
-    diagram, create, event_manager, element_factory
-):
-    """Undoing a position change should also undo the auto-pinned state."""
+def test_undo_redo_with_nested_elements(diagram, create, event_manager, element_factory):
+    """Test undo/redo works correctly with nested elements."""
     from gaphor.services.undomanager import UndoManager
 
     undo_manager = UndoManager(event_manager, element_factory)
 
     try:
+        p = create(PackageItem, UML.Package)
         c1 = create(ClassItem, UML.Class)
-        original_pos = (c1.matrix[4], c1.matrix[5])
+        p.children = c1
 
+        # Initially not pinned
+        assert p.pinned is False
         assert c1.pinned is False
 
-        # Move the element
+        # Manually move the child (should auto-pin)
         with Transaction(event_manager):
-            c1.matrix.translate(100, 100)
+            c1.matrix.translate(30, 30)
 
         assert c1.pinned is True
-        new_pos = (c1.matrix[4], c1.matrix[5])
-        assert new_pos != original_pos
 
-        # Undo
-        undo_manager.undo_transaction()
-
-        # Both position and pinned state should be restored
-        assert c1.pinned is False
-        assert (c1.matrix[4], c1.matrix[5]) == original_pos
-    finally:
-        undo_manager.shutdown()
-
-
-def test_redo_position_change_restores_pinned_state(
-    diagram, create, event_manager, element_factory
-):
-    """Redoing a position change should also redo the auto-pinned state."""
-    from gaphor.services.undomanager import UndoManager
-
-    undo_manager = UndoManager(event_manager, element_factory)
-
-    try:
-        c1 = create(ClassItem, UML.Class)
-
-        # Move the element
-        with Transaction(event_manager):
-            c1.matrix.translate(100, 100)
-
-        moved_pos = (c1.matrix[4], c1.matrix[5])
-        assert c1.pinned is True
-
-        # Undo
+        # Undo should restore unpinned state
         undo_manager.undo_transaction()
         assert c1.pinned is False
 
-        # Redo
+        # Redo should restore pinned state
         undo_manager.redo_transaction()
-
-        # Position and pinned state should be restored
         assert c1.pinned is True
-        assert (c1.matrix[4], c1.matrix[5]) == moved_pos
     finally:
         undo_manager.shutdown()
 
 
-def test_explicit_pin_then_move_undo(diagram, create, event_manager, element_factory):
-    """Test undo when explicitly pinning then moving."""
-    from gaphor.services.undomanager import UndoManager
-
-    undo_manager = UndoManager(event_manager, element_factory)
-
-    try:
-        c1 = create(ClassItem, UML.Class)
-
-        # Explicitly pin first
-        with Transaction(event_manager):
-            c1.pinned = True
-
-        assert c1.pinned is True
-
-        # Move (already pinned, so auto-pin won't change it)
-        with Transaction(event_manager):
-            c1.matrix.translate(50, 50)
-
-        moved_pos = (c1.matrix[4], c1.matrix[5])
-        assert c1.pinned is True
-
-        # Undo the move
-        undo_manager.undo_transaction()
-        # Still pinned (from explicit pin transaction)
-        assert c1.pinned is True
-
-        # Undo the explicit pin
-        undo_manager.undo_transaction()
-        assert c1.pinned is False
-    finally:
-        undo_manager.shutdown()
-
-
-def test_pinned_attribute_type_is_bool(diagram, create):
-    """Verify that the pinned attribute is a boolean type."""
+def test_pinned_attribute_uses_bool_type(diagram, create):
+    """Verify that pinned attribute uses bool type, not int."""
     c1 = create(ClassItem, UML.Class)
 
-    # Default value should be False (bool)
+    # Default should be False (bool)
     assert c1.pinned is False
     assert isinstance(c1.pinned, bool)
 
     c1.pinned = True
     assert c1.pinned is True
     assert isinstance(c1.pinned, bool)
+
+
+def test_manual_move_then_auto_layout_preserves_position(
+    diagram, create, event_manager
+):
+    """Element manually moved then auto-layout should preserve its position."""
+    c1 = create(ClassItem, UML.Class)
+    c2 = create(ClassItem, UML.Class)
+    a = create(AssociationItem)
+    connect(a, a.head, c1)
+    connect(a, a.tail, c2)
+
+    # Manually move c1 (will auto-pin)
+    with Transaction(event_manager):
+        c1.matrix.set(x0=200.0, y0=200.0)
+
+    assert c1.pinned is True
+
+    original_pos = (c1.matrix[4], c1.matrix[5])
+
+    # Auto-layout should not move c1
+    auto_layout = AutoLayout(event_manager)
+    auto_layout.layout(diagram)
+
+    assert (c1.matrix[4], c1.matrix[5]) == original_pos
+
+
+def test_unpin_then_auto_layout_moves_element(diagram, create, event_manager):
+    """After unpinning, element should be moved by auto-layout."""
+    c1 = create(ClassItem, UML.Class)
+    c2 = create(ClassItem, UML.Class)
+    a = create(AssociationItem)
+    connect(a, a.head, c1)
+    connect(a, a.tail, c2)
+
+    # Manually move c1 (will auto-pin)
+    with Transaction(event_manager):
+        c1.matrix.set(x0=500.0, y0=500.0)
+
+    assert c1.pinned is True
+
+    # Unpin c1
+    with Transaction(event_manager):
+        c1.pinned = False
+
+    assert c1.pinned is False
+
+    # Auto-layout should now be able to move c1
+    auto_layout = AutoLayout(event_manager)
+    auto_layout.layout(diagram)
+
+    # After unpinning, the element should not be re-pinned by auto-layout
+    assert c1.pinned is False

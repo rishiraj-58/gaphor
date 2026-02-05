@@ -191,9 +191,10 @@ class StyledItem:
                 "hover" if item is selection.hovered_item else "",
                 "drop" if item is selection.dropzone_item else "",
                 "disabled" if item in selection.grayed_out_items else "",
+                "pinned" if item.pinned else "",
             )
             if selection
-            else ()
+            else ("pinned" if item.pinned else "",)
         )
 
     def name(self) -> str:
