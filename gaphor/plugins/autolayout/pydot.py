@@ -16,7 +16,7 @@ from gaphor.action import action
 from gaphor.core import event_handler
 from gaphor.core.modeling import Base, Diagram, Presentation
 from gaphor.diagram.connectors import ItemTemporaryDisconnected
-from gaphor.diagram.event import DiagramClosed, DiagramOpened
+from gaphor.diagram.event import DiagramClosed, DiagramOpened, DiagramSelectionChanged
 from gaphor.diagram.presentation import (
     AttachedPresentation,
     ElementPresentation,
@@ -42,9 +42,11 @@ class AutoLayoutService(Service, ActionProvider):
         self.dump_gv = dump_gv
 
         event_manager.subscribe(self.on_diagram_opened_or_closed)
+        event_manager.subscribe(self.on_diagram_selection_changed)
 
     def shutdown(self):
         self.event_manager.unsubscribe(self.on_diagram_opened_or_closed)
+        self.event_manager.unsubscribe(self.on_diagram_selection_changed)
 
     @action(
         name="auto-layout", label=gettext("Auto Layout"), shortcut="<Primary><Shift>L"
@@ -62,6 +64,50 @@ class AutoLayoutService(Service, ActionProvider):
         if current_diagram := self.diagrams.get_current_diagram():
             self.layout(current_diagram, splines="ortho")
 
+    @action(
+        name="toggle-auto-layout-pin",
+        label=gettext("Toggle Auto Layout Pin"),
+        shortcut="<Primary><Shift>P",
+    )
+    def toggle_auto_layout_pin(self):
+        """Toggle the pinned state for selected items.
+
+        When an item is pinned, it will be excluded from auto-layout operations.
+        This allows users to manually position certain elements while still
+        applying auto-layout to the rest of the diagram.
+        """
+        view = self.diagrams.get_current_view()
+        if not view:
+            return
+
+        selected_items = view.selection.selected_items
+        if not selected_items:
+            return
+
+        with Transaction(self.event_manager):
+            for item in selected_items:
+                if hasattr(item, "pinned"):
+                    # Toggle: if pinned, unpin; if not pinned, pin
+                    item.pinned = 0 if item.pinned else 1
+
+    @action(
+        name="unpin-all-elements",
+        label=gettext("Unpin All Elements"),
+    )
+    def unpin_all_elements(self):
+        """Unpin all elements in the current diagram.
+
+        This resets all elements to be affected by auto-layout again.
+        """
+        diagram = self.diagrams.get_current_diagram()
+        if not diagram:
+            return
+
+        with Transaction(self.event_manager):
+            for presentation in diagram.ownedPresentation:
+                if hasattr(presentation, "pinned") and presentation.pinned:
+                    presentation.pinned = 0
+
     def layout(self, diagram: Diagram, splines="polyline"):
         auto_layout = AutoLayout(self.event_manager, self.dump_gv)
 
@@ -74,8 +120,20 @@ class AutoLayoutService(Service, ActionProvider):
             isinstance(event, DiagramOpened) or self.diagrams.get_current_diagram()
         )
 
-        for action_name in ("win.auto-layout", "win.auto-layout-ortho"):
+        for action_name in (
+            "win.auto-layout",
+            "win.auto-layout-ortho",
+            "win.unpin-all-elements",
+        ):
             self.event_manager.handle(ActionEnabled(action_name, enabled))
+
+    @event_handler(DiagramSelectionChanged)
+    def on_diagram_selection_changed(self, event: DiagramSelectionChanged):
+        """Enable/disable toggle-pin action based on selection."""
+        has_selection = bool(event.selected_items)
+        self.event_manager.handle(
+            ActionEnabled("win.toggle-auto-layout-pin", has_selection)
+        )
 
 
 class AutoLayout:
@@ -101,6 +159,17 @@ class AutoLayout:
         rendered_graphs = pydot.graph_from_dot_data(rendered_string)
         return rendered_graphs[0]
 
+    def _is_pinned(self, presentation: Presentation | None) -> bool:
+        """Check if a presentation element is pinned (excluded from auto-layout)."""
+        if presentation is None:
+            return False
+        return bool(getattr(presentation, "pinned", 0))
+
+    def _set_auto_layout_mode(self, presentation: Presentation | None, mode: bool) -> None:
+        """Set auto-layout mode flag on presentation to prevent auto-pinning."""
+        if presentation is not None:
+            presentation._in_auto_layout = mode
+
     def apply_layout(  # noqa: C901
         self, diagram, rendered_graph, parent_presentation=None, height=None
     ):
@@ -116,7 +185,7 @@ class AutoLayout:
         # First record original positions for involved lines (skip pinned)
         for edge in rendered_graph.get_edges():
             if presentation := presentation_for_object(diagram, edge):
-                if presentation.pinned:
+                if self._is_pinned(presentation):
                     continue
                 for handle in (presentation.head, presentation.tail):
                     if cinfo := diagram.connections.get_connection(handle):
@@ -135,7 +204,14 @@ class AutoLayout:
             if presentation := presentation_for_object(
                 diagram, subgraph.get_node("graph")[0]
             ):
-                if presentation.pinned:
+                if self._is_pinned(presentation):
+                    # Still process children even if parent is pinned
+                    self.apply_layout(
+                        diagram,
+                        subgraph,
+                        parent_presentation=presentation,
+                        height=height,
+                    )
                     continue
                 if bb := subgraph.get_node("graph")[0].get("bb"):
                     x, y, w, h = parse_bb(bb, height)
@@ -144,10 +220,14 @@ class AutoLayout:
                     presentation.height = h
 
                     new_pos = matrix_c2i.transform_point(x, y)
-                    presentation.matrix.set(
-                        x0=new_pos[0],
-                        y0=new_pos[1],
-                    )
+                    self._set_auto_layout_mode(presentation, True)
+                    try:
+                        presentation.matrix.set(
+                            x0=new_pos[0],
+                            y0=new_pos[1],
+                        )
+                    finally:
+                        self._set_auto_layout_mode(presentation, False)
                     self.apply_layout(
                         diagram,
                         subgraph,
@@ -160,7 +240,7 @@ class AutoLayout:
                 continue
 
             if presentation := presentation_for_object(diagram, node):
-                if presentation.pinned:
+                if self._is_pinned(presentation):
                     continue
                 center = parse_point(node.get_pos(), height)
                 if isinstance(presentation, ElementPresentation):
@@ -176,10 +256,14 @@ class AutoLayout:
                     )
                 else:
                     new_pos = matrix_c2i.transform_point(center[0], center[1])
-                presentation.matrix.set(
-                    x0=new_pos[0],
-                    y0=new_pos[1],
-                )
+                self._set_auto_layout_mode(presentation, True)
+                try:
+                    presentation.matrix.set(
+                        x0=new_pos[0],
+                        y0=new_pos[1],
+                    )
+                finally:
+                    self._set_auto_layout_mode(presentation, False)
                 if isinstance(presentation, AttachedPresentation):
                     reconnect(
                         presentation, presentation.handles()[0], diagram.connections
@@ -187,7 +271,7 @@ class AutoLayout:
 
         for edge in rendered_graph.get_edges():
             if presentation := presentation_for_object(diagram, edge):
-                if presentation.pinned:
+                if self._is_pinned(presentation):
                     continue
                 presentation.orthogonal = False
 
@@ -201,9 +285,13 @@ class AutoLayout:
 
                 assert len(points) == len(presentation.handles())
 
-                matrix = presentation.matrix_i2c.inverse()
-                for handle, point in zip(presentation.handles(), points, strict=False):
-                    handle.pos = matrix.transform_point(*point)
+                self._set_auto_layout_mode(presentation, True)
+                try:
+                    matrix = presentation.matrix_i2c.inverse()
+                    for handle, point in zip(presentation.handles(), points, strict=False):
+                        handle.pos = matrix.transform_point(*point)
+                finally:
+                    self._set_auto_layout_mode(presentation, False)
 
                 for handle in (presentation.head, presentation.tail):
                     reconnect(presentation, handle, diagram.connections)

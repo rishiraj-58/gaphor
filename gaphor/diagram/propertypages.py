@@ -202,35 +202,6 @@ class NamePropertyPage(PropertyPageBase):
             self.subject.name = entry.get_text()
 
 
-@PropertyPages.register(Presentation)
-class PinnedPropertyPage(PropertyPageBase):
-    """Property page to control whether an element is excluded from auto-layout."""
-
-    order = 450
-
-    def __init__(self, item, event_manager):
-        super().__init__()
-        self.item = item
-        self.event_manager = event_manager
-
-    def construct(self):
-        builder = new_builder(
-            "pinned-editor",
-            signals={
-                "pinned-changed": (self._on_pinned_change,),
-            },
-        )
-
-        pinned_switch = builder.get_object("pinned-switch")
-        pinned_switch.set_active(self.item.pinned)
-
-        return builder.get_object("pinned-editor")
-
-    def _on_pinned_change(self, button, gparam):
-        with Transaction(self.event_manager):
-            self.item.pinned = button.get_active()
-
-
 @PropertyPages.register(gaphas.item.Line)
 class LineStylePage(PropertyPageBase):
     """Basic line style properties: color, orthogonal, etc."""
