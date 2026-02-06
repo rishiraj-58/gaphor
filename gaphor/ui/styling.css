@@ -227,3 +227,34 @@ flowboxchild:active {
   font-family: monospace;
   font-size: 90%;
 }
+
+/* ---------------------------------------------------------------------------
+   Advanced-search result rows
+   --------------------------------------------------------------------------- */
+
+/* Element name – first line, bold */
+.advanced-search-name {
+  font-weight: bold;
+  font-size: 100%;
+}
+
+/* "Type  ·  Diagram1, …" – second line, slightly smaller */
+.advanced-search-meta {
+  font-size: 85%;
+  color: var(--dim-label, #888888);
+}
+
+/* Match-context snippet – third line, italic and dimmed */
+.advanced-search-context {
+  font-size: 80%;
+  font-style: italic;
+  color: var(--dim-label, #777777);
+}
+
+/* Transient highlight pulse applied to the GtkView (diagramview) while
+   the matching element is being focused.  The orange border gives a
+   brief, unmissable flash that fades when the CSS class is removed. */
+diagramview.search-highlight {
+  border: 3px solid #e67e22;
+  border-radius: 4px;
+}

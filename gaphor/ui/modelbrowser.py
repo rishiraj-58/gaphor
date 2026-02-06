@@ -245,6 +245,45 @@ class ModelBrowser(UIComponent, ActionProvider):
         if self.search_bar:
             self.search_bar.set_search_mode(True)
 
+    @action(name="win.advanced-search", shortcut="<Primary><Shift>f")
+    def tree_view_advanced_search(self):
+        """Open the advanced search dialog (Ctrl/Cmd-Shift-F).
+
+        The dialog is created once and reused; ``show()`` resets its
+        state so the user always starts with an empty query.
+        """
+        if not hasattr(self, "_advanced_search_dialog"):
+            from gaphor.ui.advancedsearch import AdvancedSearchDialog
+
+            self._advanced_search_dialog = AdvancedSearchDialog(
+                self.event_manager, self.element_factory
+            )
+
+        # Determine the currently-open diagram so the dialog can offer
+        # local-scope filtering.  The Diagrams service fires
+        # CurrentDiagramChanged; we read it back from the last
+        # ModelSelectionChanged or simply ask the component registry.
+        current_diagram = self._get_current_diagram()
+        self._advanced_search_dialog.show(current_diagram)
+
+    # ------------------------------------------------------------------
+    # helper – current diagram
+    # ------------------------------------------------------------------
+
+    def _get_current_diagram(self):
+        """Best-effort retrieval of the currently visible diagram.
+
+        We walk the component registry looking for the ``diagrams``
+        UIComponent (the ``Diagrams`` class) and call its
+        ``get_current_diagram()``.  If anything is missing we return
+        ``None`` – the dialog will simply default to global scope.
+        """
+        try:
+            diagrams_service = self.component_registry.get_service("diagrams")
+            return diagrams_service.get_current_diagram()
+        except Exception:  # noqa: BLE001 – best effort
+            return None
+
     @action(name="win.show-in-model-browser")
     def show_in_model_browser(self, id: str):
         if element := self.element_factory.lookup(id):
