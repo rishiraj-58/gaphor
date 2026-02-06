@@ -227,3 +227,14 @@ flowboxchild:active {
   font-family: monospace;
   font-size: 90%;
 }
+
+/* Global search highlight animation */
+@keyframes search-highlight-pulse {
+  0% { box-shadow: 0 0 0 0 var(--accent-bg-color); }
+  50% { box-shadow: 0 0 20px 10px var(--accent-bg-color); }
+  100% { box-shadow: 0 0 0 0 var(--accent-bg-color); }
+}
+
+diagramview.search-highlight {
+  animation: search-highlight-pulse 0.75s ease-in-out 2;
+}
