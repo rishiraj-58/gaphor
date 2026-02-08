@@ -228,33 +228,51 @@ flowboxchild:active {
   font-size: 90%;
 }
 
-/* ---------------------------------------------------------------------------
-   Advanced-search result rows
-   --------------------------------------------------------------------------- */
+/* Advanced Search Dialog Styles */
+.search-result-row {
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border-color);
+}
 
-/* Element name – first line, bold */
-.advanced-search-name {
+.search-result-row:hover {
+  background-color: var(--shade-color);
+}
+
+.search-result-name {
   font-weight: bold;
-  font-size: 100%;
 }
 
-/* "Type  ·  Diagram1, …" – second line, slightly smaller */
-.advanced-search-meta {
-  font-size: 85%;
-  color: var(--dim-label, #888888);
+.search-result-type {
+  font-size: small;
+  color: var(--dim-label-color);
 }
 
-/* Match-context snippet – third line, italic and dimmed */
-.advanced-search-context {
-  font-size: 80%;
-  font-style: italic;
-  color: var(--dim-label, #777777);
+.search-result-description {
+  font-size: small;
 }
 
-/* Transient highlight pulse applied to the GtkView (diagramview) while
-   the matching element is being focused.  The orange border gives a
-   brief, unmissable flash that fades when the CSS class is removed. */
-diagramview.search-highlight {
-  border: 3px solid #e67e22;
-  border-radius: 4px;
+.search-result-location {
+  font-size: small;
+  color: var(--dim-label-color);
+}
+
+.search-filter-toggle {
+  padding: 2px 8px;
+  min-height: 24px;
+}
+
+.search-filter-toggle:checked {
+  background-color: var(--accent-bg-color);
+  color: var(--accent-fg-color);
+}
+
+/* Highlight effect for focused diagram items */
+@keyframes search-highlight-pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.search-highlighted {
+  animation: search-highlight-pulse 0.5s ease-in-out 3;
 }

@@ -65,7 +65,14 @@
                     <child>
                       <object class="GtkShortcutsShortcut">
                         <property name="accelerator">&lt;Primary&gt;f</property>
-                        <property name="title" translatable="yes">Search</property>
+                        <property name="title" translatable="yes">Search Model Browser</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkShortcutsShortcut">
+                        <property name="accelerator">&lt;Primary&gt;&lt;Shift&gt;f</property>
+                        <property name="title" translatable="yes">Advanced Search</property>
                       </object>
                     </child>
 

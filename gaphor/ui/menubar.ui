@@ -71,6 +71,16 @@
           <attribute name="action">selection.unselect-all</attribute>
         </item>
       </section>
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">Search Model Browser</attribute>
+          <attribute name="action">win.search</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">Advanced Search…</attribute>
+          <attribute name="action">win.advanced-search</attribute>
+        </item>
+      </section>
     </submenu>
     <submenu>
       <attribute name="label" translatable="yes">_View</attribute>
