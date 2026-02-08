@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+
+  <template class="GtkListItem">
+    <property name="child">
+      <object class="GtkBox" id="result-row">
+        <property name="orientation">vertical</property>
+        <property name="spacing">4</property>
+        <property name="margin-start">8</property>
+        <property name="margin-end">8</property>
+        <property name="margin-top">8</property>
+        <property name="margin-bottom">8</property>
+
+        <!-- Main row: Icon, Name, Type -->
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <property name="spacing">8</property>
+
+            <child>
+              <object class="GtkImage" id="element-icon">
+                <property name="icon-size">normal</property>
+                <binding name="icon-name">
+                  <lookup name="icon" type="SearchResultItem">
+                    <lookup name="item">GtkListItem</lookup>
+                  </lookup>
+                </binding>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkLabel" id="element-name">
+                <property name="halign">start</property>
+                <property name="hexpand">1</property>
+                <property name="ellipsize">end</property>
+                <binding name="label">
+                  <lookup name="element_name" type="SearchResultItem">
+                    <lookup name="item">GtkListItem</lookup>
+                  </lookup>
+                </binding>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                </attributes>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkLabel" id="element-type">
+                <property name="halign">end</property>
+                <binding name="label">
+                  <lookup name="element_type" type="SearchResultItem">
+                    <lookup name="item">GtkListItem</lookup>
+                  </lookup>
+                </binding>
+                <style>
+                  <class name="dim-label"/>
+                </style>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <!-- Match info row -->
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <property name="spacing">8</property>
+
+            <child>
+              <object class="GtkLabel" id="match-category">
+                <property name="halign">start</property>
+                <binding name="label">
+                  <lookup name="match_category_label" type="SearchResultItem">
+                    <lookup name="item">GtkListItem</lookup>
+                  </lookup>
+                </binding>
+                <style>
+                  <class name="caption"/>
+                </style>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkLabel" id="match-value">
+                <property name="halign">start</property>
+                <property name="hexpand">1</property>
+                <property name="ellipsize">end</property>
+                <property name="max-width-chars">60</property>
+                <binding name="label">
+                  <lookup name="match_value" type="SearchResultItem">
+                    <lookup name="item">GtkListItem</lookup>
+                  </lookup>
+                </binding>
+                <style>
+                  <class name="dim-label"/>
+                  <class name="caption"/>
+                </style>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <!-- Diagram locations row -->
+        <child>
+          <object class="GtkLabel" id="diagram-locations">
+            <property name="halign">start</property>
+            <property name="ellipsize">end</property>
+            <property name="max-width-chars">80</property>
+            <binding name="label">
+              <lookup name="diagram_locations_label" type="SearchResultItem">
+                <lookup name="item">GtkListItem</lookup>
+              </lookup>
+            </binding>
+            <binding name="visible">
+              <lookup name="has_diagram_locations" type="SearchResultItem">
+                <lookup name="item">GtkListItem</lookup>
+              </lookup>
+            </binding>
+            <style>
+              <class name="caption"/>
+              <class name="accent"/>
+            </style>
+          </object>
+        </child>
+
+      </object>
+    </property>
+  </template>
+</interface>

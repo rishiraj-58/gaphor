@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="adw" version="1.0"/>
+
+  <object class="AdwDialog" id="search-dialog">
+    <property name="title" translatable="yes">Global Search</property>
+    <property name="content-width">700</property>
+    <property name="content-height">500</property>
+
+    <property name="child">
+      <object class="AdwToolbarView">
+        <child type="top">
+          <object class="AdwHeaderBar">
+            <property name="show-end-title-buttons">1</property>
+            <property name="show-start-title-buttons">0</property>
+          </object>
+        </child>
+
+        <property name="content">
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <property name="spacing">12</property>
+            <property name="margin-start">12</property>
+            <property name="margin-end">12</property>
+            <property name="margin-top">12</property>
+            <property name="margin-bottom">12</property>
+
+            <!-- Search Entry -->
+            <child>
+              <object class="GtkSearchEntry" id="search-entry">
+                <property name="hexpand">1</property>
+                <property name="placeholder-text" translatable="yes">Search elements, types, attributes, relationships...</property>
+              </object>
+            </child>
+
+            <!-- Search Options -->
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">horizontal</property>
+                <property name="spacing">12</property>
+                <property name="halign">start</property>
+
+                <!-- Scope Toggle -->
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Scope:</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkDropDown" id="scope-dropdown">
+                        <property name="model">
+                          <object class="GtkStringList">
+                            <items>
+                              <item translatable="yes">All Packages</item>
+                              <item translatable="yes">Current Diagram</item>
+                            </items>
+                          </object>
+                        </property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkSeparator">
+                    <property name="orientation">vertical</property>
+                  </object>
+                </child>
+
+                <!-- Filter Toggles -->
+                <child>
+                  <object class="GtkCheckButton" id="search-names">
+                    <property name="label" translatable="yes">Names</property>
+                    <property name="active">1</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="search-types">
+                    <property name="label" translatable="yes">Types</property>
+                    <property name="active">1</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="search-attributes">
+                    <property name="label" translatable="yes">Attributes</property>
+                    <property name="active">1</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="search-relationships">
+                    <property name="label" translatable="yes">Relationships</property>
+                    <property name="active">1</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <!-- Results Info -->
+            <child>
+              <object class="GtkLabel" id="results-info">
+                <property name="halign">start</property>
+                <property name="label" translatable="yes">Enter a search term to find elements</property>
+                <style>
+                  <class name="dim-label"/>
+                </style>
+              </object>
+            </child>
+
+            <!-- Results List -->
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="vexpand">1</property>
+                <property name="hscrollbar-policy">never</property>
+                <child>
+                  <object class="GtkListView" id="results-list">
+                    <property name="single-click-activate">0</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+          </object>
+        </property>
+      </object>
+    </property>
+  </object>
+</interface>
