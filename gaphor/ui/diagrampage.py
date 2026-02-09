@@ -10,6 +10,7 @@ from gaphas.tool.rubberband import RubberbandPainter, RubberbandState
 from gaphas.view import GtkView
 from gi.repository import Adw, Gdk, GdkPixbuf, Gio, GLib, Gtk
 
+from gaphor.action import action
 from gaphor.core import event_handler, gettext
 from gaphor.core.modeling import StyleSheet
 from gaphor.core.modeling.diagram import StyledDiagram
@@ -18,6 +19,7 @@ from gaphor.core.modeling.event import (
     StyleSheetUpdated,
 )
 from gaphor.core.styling import PrefersColorScheme
+from gaphor.diagram.compare.compareview import CompareView
 from gaphor.diagram.diagramtoolbox import get_tool_def, tooliter
 from gaphor.diagram.event import DiagramSelectionChanged
 from gaphor.diagram.painter import DiagramTypePainter, ItemPainter
@@ -96,6 +98,7 @@ class DiagramPage:
         self.view: GtkView | None = None
         self.alignment_button: Gtk.Button | None = None
         self.diagram_css: Gtk.CssProvider | None = None
+        self._compare_view: CompareView | None = None
 
         self.rubberband_state = RubberbandState()
         self.context_menu = Gtk.PopoverMenu.new_from_model(popup_model(diagram))
@@ -249,12 +252,40 @@ class DiagramPage:
     def _on_notify_dark(self, style_manager, _gparam=None):
         self.update_drawing_style()
 
+    # ------------------------------------------------------------------
+    # Compare-with action
+    # ------------------------------------------------------------------
+
+    @action(name="diagram.compare-with")
+    async def compare_with(self) -> None:
+        """Open the Compare-with… split-screen panel for this diagram."""
+        if self._compare_view is None:
+            self._compare_view = CompareView(
+                diagram_widget=self.view,
+                element_factory=self.element_factory,
+                modeling_language=self.modeling_language,
+                event_manager=self.event_manager,
+                parent_window=self.view.get_root() if self.view else None,
+            )
+        await self._compare_view.open_compare_dialog()
+
+    @action(name="diagram.close-compare")
+    def close_compare(self) -> None:
+        """Close the active comparison panel."""
+        if self._compare_view and self._compare_view.is_open:
+            self._compare_view.close()
+
     def close(self):
         """Tab is destroyed.
 
         Do the same thing that would be done if Close was pressed.
         """
         assert self.view
+
+        # Close any open comparison view before tearing down the page.
+        if self._compare_view and self._compare_view.is_open:
+            self._compare_view.close()
+        self._compare_view = None
 
         Gtk.StyleContext.remove_provider_for_display(
             Gdk.Display.get_default(),
@@ -381,5 +412,11 @@ def popup_model(element):
 
     part.append_item(menu_item)
     model.append_section(None, part)
+
+    # --- Compare section ---
+    compare_section = Gio.Menu.new()
+    compare_section.append(gettext("Compare with…"), "diagram.compare-with")
+    compare_section.append(gettext("Close Comparison"), "diagram.close-compare")
+    model.append_section(None, compare_section)
 
     return model
