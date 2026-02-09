@@ -92,12 +92,12 @@ documentation = "https://docs.gaphor.org/"
 "toolbox" = "gaphor.ui.toolbox:Toolbox"
 "diagrams" = "gaphor.ui.diagrams:Diagrams"
 "diagram_align" = "gaphor.ui.diagramalign:DiagramAlign"
-"global_search" = "gaphor.ui.globalsearch:GlobalSearchService"
 "element_editor" = "gaphor.ui.elementeditor:ElementEditor"
 "model_changed" = "gaphor.ui.modelchanged:ModelChanged"
 "console_window" = "gaphor.plugins.console.consolewindow:ConsoleWindow"
 "diagram_export" = "gaphor.plugins.diagramexport.export:DiagramExport"
 "auto_layout" = "gaphor.plugins.autolayout:AutoLayoutService"
+"model_compare" = "gaphor.ui.modelcompare.comparedialog:ModelCompare"
 
 [project.entry-points."gaphor.modelinglanguages"]
 "Core" = "gaphor.core.modeling.modelinglanguage:CoreModelingLanguage"

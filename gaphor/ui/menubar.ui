@@ -24,6 +24,12 @@
         </item>
       </section>
       <section>
+        <item>
+          <attribute name="label" translatable="yes">Compare With…</attribute>
+          <attribute name="action">win.model-compare</attribute>
+        </item>
+      </section>
+      <section>
         <link name="section" id="export-menu"/>
       </section>
     </submenu>
