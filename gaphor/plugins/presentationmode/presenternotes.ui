@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="libadwaita" version="1.0"/>
+
+  <template class="PresenterNotesWindow" parent="AdwWindow">
+    <property name="title" translatable="yes">Presenter Notes</property>
+    <property name="default-width">400</property>
+    <property name="default-height">300</property>
+
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+
+        <child>
+          <object class="AdwHeaderBar" id="header">
+            <child type="end">
+              <object class="GtkToggleButton" id="always-on-top-btn">
+                <property name="icon-name">view-pin-symbolic</property>
+                <property name="tooltip-text" translatable="yes">Keep on top</property>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkBox" id="content-box">
+            <property name="orientation">vertical</property>
+            <property name="spacing">12</property>
+            <property name="margin-start">12</property>
+            <property name="margin-end">12</property>
+            <property name="margin-top">12</property>
+            <property name="margin-bottom">12</property>
+
+            <!-- Slide counter -->
+            <child>
+              <object class="GtkLabel" id="slide-label">
+                <property name="label">Slide 0 / 0</property>
+                <style>
+                  <class name="title-3"/>
+                </style>
+              </object>
+            </child>
+
+            <!-- Slide title -->
+            <child>
+              <object class="GtkLabel" id="title-label">
+                <property name="label"></property>
+                <property name="ellipsize">end</property>
+                <style>
+                  <class name="title-2"/>
+                </style>
+              </object>
+            </child>
+
+            <!-- Timer -->
+            <child>
+              <object class="GtkBox" id="timer-box">
+                <property name="orientation">horizontal</property>
+                <property name="halign">center</property>
+                <property name="spacing">6</property>
+
+                <child>
+                  <object class="GtkLabel" id="timer-label">
+                    <property name="label">00:00</property>
+                    <style>
+                      <class name="title-1"/>
+                    </style>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkButton" id="timer-reset-btn">
+                    <property name="icon-name">view-refresh-symbolic</property>
+                    <property name="tooltip-text" translatable="yes">Reset timer</property>
+                    <property name="valign">center</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <!-- Notes -->
+            <child>
+              <object class="GtkScrolledWindow" id="notes-scroll">
+                <property name="vexpand">true</property>
+                <property name="hscrollbar-policy">automatic</property>
+                <property name="vscrollbar-policy">automatic</property>
+
+                <child>
+                  <object class="GtkTextView" id="notes-view">
+                    <property name="editable">false</property>
+                    <property name="wrap-mode">word</property>
+                    <property name="top-margin">6</property>
+                    <property name="bottom-margin">6</property>
+                    <property name="left-margin">6</property>
+                    <property name="right-margin">6</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <!-- Navigation buttons -->
+            <child>
+              <object class="GtkBox" id="nav-box">
+                <property name="orientation">horizontal</property>
+                <property name="spacing">12</property>
+                <property name="halign">center</property>
+
+                <child>
+                  <object class="GtkButton" id="prev-btn">
+                    <property name="label" translatable="yes">Previous</property>
+                    <property name="icon-name">go-previous-symbolic</property>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkButton" id="next-btn">
+                    <property name="label" translatable="yes">Next</property>
+                    <property name="icon-name">go-next-symbolic</property>
+                    <style>
+                      <class name="suggested-action"/>
+                    </style>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <!-- Slide thumbnails (optional) -->
+            <child>
+              <object class="GtkBox" id="thumbnail-box">
+                <property name="orientation">horizontal</property>
+                <property name="spacing">6</property>
+                <property name="halign">center</property>
+
+                <child>
+                  <object class="GtkFrame" id="current-thumbnail-frame">
+                    <property name="label" translatable="yes">Current</property>
+                    <child>
+                      <object class="GtkDrawingArea" id="current-thumbnail">
+                        <property name="width-request">120</property>
+                        <property name="height-request">90</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkFrame" id="next-thumbnail-frame">
+                    <property name="label" translatable="yes">Next</property>
+                    <child>
+                      <object class="GtkDrawingArea" id="next-thumbnail">
+                        <property name="width-request">120</property>
+                        <property name="height-request">90</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

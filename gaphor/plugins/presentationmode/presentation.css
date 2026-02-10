@@ -1,0 +1,105 @@
+/* Presentation Mode Styling */
+
+/* Color button styling */
+.color-red {
+    background-color: #FF0000;
+    min-width: 20px;
+    min-height: 20px;
+}
+
+.color-blue {
+    background-color: #0000FF;
+    min-width: 20px;
+    min-height: 20px;
+}
+
+.color-green {
+    background-color: #009900;
+    min-width: 20px;
+    min-height: 20px;
+}
+
+.color-yellow {
+    background-color: #FFFF00;
+    min-width: 20px;
+    min-height: 20px;
+}
+
+.color-black {
+    background-color: #000000;
+    min-width: 20px;
+    min-height: 20px;
+}
+
+/* Presentation window styling */
+.presentation-window {
+    background-color: #1a1a1a;
+}
+
+/* Controls bar styling */
+.presentation-controls {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 8px;
+    padding: 6px 12px;
+}
+
+/* Slide indicator styling */
+.slide-indicator {
+    font-weight: bold;
+    color: white;
+    min-width: 80px;
+}
+
+/* Presenter notes styling */
+.presenter-notes {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Timer styling */
+.presentation-timer {
+    font-size: 24px;
+    font-weight: bold;
+    font-family: monospace;
+}
+
+/* Drawing tools bar */
+.drawing-toolbar {
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 6px;
+    padding: 4px 8px;
+}
+
+/* Hotspot highlighting */
+.hotspot-highlight {
+    border: 2px solid rgba(255, 200, 0, 0.8);
+    background-color: rgba(255, 255, 0, 0.2);
+}
+
+/* Slide thumbnail */
+.slide-thumbnail {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.slide-thumbnail.current {
+    border: 2px solid #3584e4;
+}
+
+/* Editor slide list */
+.slide-list-row {
+    padding: 8px 12px;
+}
+
+.slide-list-row:selected {
+    background-color: #3584e4;
+}
+
+/* Fade transition for controls */
+.fade-controls {
+    transition: opacity 300ms ease-in-out;
+}
+
+.fade-controls.hidden {
+    opacity: 0;
+}
