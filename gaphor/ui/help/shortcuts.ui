@@ -97,13 +97,6 @@
                       </object>
                     </child>
 
-                    <child>
-                      <object class="GtkShortcutsShortcut">
-                        <property name="accelerator">&lt;Primary&gt;&lt;Shift&gt;c</property>
-                        <property name="title" translatable="yes">Compare With…</property>
-                      </object>
-                    </child>
-
                   </object>
                 </child>
 

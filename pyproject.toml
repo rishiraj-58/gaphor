@@ -97,7 +97,7 @@ documentation = "https://docs.gaphor.org/"
 "console_window" = "gaphor.plugins.console.consolewindow:ConsoleWindow"
 "diagram_export" = "gaphor.plugins.diagramexport.export:DiagramExport"
 "auto_layout" = "gaphor.plugins.autolayout:AutoLayoutService"
-"model_compare" = "gaphor.ui.modelcompare.comparedialog:ModelCompare"
+"presentation_mode" = "gaphor.plugins.presentationmode:PresentationModeService"
 
 [project.entry-points."gaphor.modelinglanguages"]
 "Core" = "gaphor.core.modeling.modelinglanguage:CoreModelingLanguage"
