@@ -96,19 +96,6 @@
       </section>
     </submenu>
     <submenu>
-      <attribute name="label" translatable="yes">_Compare</attribute>
-      <section>
-        <item>
-          <attribute name="label" translatable="yes">Compare with…</attribute>
-          <attribute name="action">diagram.compare-with</attribute>
-        </item>
-        <item>
-          <attribute name="label" translatable="yes">Close Comparison</attribute>
-          <attribute name="action">diagram.close-compare</attribute>
-        </item>
-      </section>
-    </submenu>
-    <submenu>
       <link name="section" id="tools-menu"/>
     </submenu>
     <submenu>
