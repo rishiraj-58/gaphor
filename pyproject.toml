@@ -46,10 +46,12 @@ dependencies = [
     "defusedxml>=0.7.1",
     "pyobjc-framework-cocoa (>=9.0.1,<11.0.0) ; sys_platform == 'darwin'",
     "dulwich (>=0.21.7,<0.23.0)",
+    "websockets>=12.0",
 ]
 
 [project.scripts]
 gaphor = "gaphor.main:main"
+gaphor-collab-server = "gaphor.services.collaboration.server:run_server"
 
 [project.urls]
 homepage = "https://gaphor.org/"
@@ -97,7 +99,8 @@ documentation = "https://docs.gaphor.org/"
 "console_window" = "gaphor.plugins.console.consolewindow:ConsoleWindow"
 "diagram_export" = "gaphor.plugins.diagramexport.export:DiagramExport"
 "auto_layout" = "gaphor.plugins.autolayout:AutoLayoutService"
-"presentation_mode" = "gaphor.plugins.presentationmode:PresentationModeService"
+"collaboration_service" = "gaphor.services.collaboration:CollaborationService"
+"collaboration_ui" = "gaphor.ui.collaboration:CollaborationUI"
 
 [project.entry-points."gaphor.modelinglanguages"]
 "Core" = "gaphor.core.modeling.modelinglanguage:CoreModelingLanguage"
