@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="libadwaita" version="1.0"/>
+
+  <template class="TemplateBrowserWindow" parent="AdwWindow">
+    <property name="title" translatable="yes">Template Browser</property>
+    <property name="default-width">900</property>
+    <property name="default-height">600</property>
+
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+
+        <!-- Header Bar -->
+        <child>
+          <object class="AdwHeaderBar" id="header-bar">
+            <child type="start">
+              <object class="GtkToggleButton" id="search-button">
+                <property name="icon-name">edit-find-symbolic</property>
+                <property name="tooltip-text" translatable="yes">Search templates</property>
+              </object>
+            </child>
+            <child type="end">
+              <object class="GtkButton" id="create-button">
+                <property name="icon-name">list-add-symbolic</property>
+                <property name="tooltip-text" translatable="yes">Create template from diagram</property>
+              </object>
+            </child>
+            <child type="end">
+              <object class="GtkButton" id="refresh-button">
+                <property name="icon-name">view-refresh-symbolic</property>
+                <property name="tooltip-text" translatable="yes">Refresh templates</property>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <!-- Search Bar -->
+        <child>
+          <object class="GtkSearchBar" id="search-bar">
+            <child>
+              <object class="GtkSearchEntry" id="search-entry">
+                <property name="placeholder-text" translatable="yes">Search templates...</property>
+                <property name="hexpand">true</property>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <!-- Main Content -->
+        <child>
+          <object class="GtkPaned" id="main-paned">
+            <property name="orientation">horizontal</property>
+            <property name="position">350</property>
+            <property name="hexpand">true</property>
+            <property name="vexpand">true</property>
+
+            <!-- Left Panel: Template List -->
+            <child>
+              <object class="GtkBox" id="left-panel">
+                <property name="orientation">vertical</property>
+                <property name="spacing">8</property>
+                <property name="margin-top">8</property>
+                <property name="margin-bottom">8</property>
+                <property name="margin-start">8</property>
+                <property name="margin-end">8</property>
+
+                <!-- Category Filter -->
+                <child>
+                  <object class="GtkBox" id="category-box">
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">8</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Category:</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkDropDown" id="category-dropdown">
+                        <property name="hexpand">true</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+
+                <!-- Template List -->
+                <child>
+                  <object class="GtkScrolledWindow" id="template-scrolled">
+                    <property name="hscrollbar-policy">never</property>
+                    <property name="vscrollbar-policy">automatic</property>
+                    <property name="vexpand">true</property>
+                    <child>
+                      <object class="GtkListView" id="template-list">
+                        <style>
+                          <class name="navigation-sidebar"/>
+                        </style>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <!-- Right Panel: Preview and Parameters -->
+            <child>
+              <object class="GtkBox" id="right-panel">
+                <property name="orientation">vertical</property>
+                <property name="spacing">16</property>
+                <property name="hexpand">true</property>
+                <property name="margin-top">16</property>
+                <property name="margin-bottom">16</property>
+                <property name="margin-start">16</property>
+                <property name="margin-end">16</property>
+
+                <!-- Preview Frame -->
+                <child>
+                  <object class="GtkFrame" id="preview-frame">
+                    <style>
+                      <class name="view"/>
+                    </style>
+                    <child>
+                      <object class="GtkBox" id="preview-box">
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">8</property>
+                        <property name="margin-top">12</property>
+                        <property name="margin-bottom">12</property>
+                        <property name="margin-start">12</property>
+                        <property name="margin-end">12</property>
+
+                        <!-- Thumbnail -->
+                        <child>
+                          <object class="GtkPicture" id="preview-image">
+                            <property name="width-request">256</property>
+                            <property name="height-request">192</property>
+                            <property name="content-fit">contain</property>
+                            <style>
+                              <class name="card"/>
+                            </style>
+                          </object>
+                        </child>
+
+                        <!-- Template Name -->
+                        <child>
+                          <object class="GtkLabel" id="preview-name">
+                            <property name="wrap">true</property>
+                            <property name="xalign">0</property>
+                            <style>
+                              <class name="title-2"/>
+                            </style>
+                          </object>
+                        </child>
+
+                        <!-- Description -->
+                        <child>
+                          <object class="GtkLabel" id="preview-description">
+                            <property name="wrap">true</property>
+                            <property name="xalign">0</property>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
+                          </object>
+                        </child>
+
+                        <!-- Details -->
+                        <child>
+                          <object class="GtkLabel" id="preview-details">
+                            <property name="wrap">true</property>
+                            <property name="xalign">0</property>
+                            <style>
+                              <class name="caption"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+
+                <!-- Parameters Section -->
+                <child>
+                  <object class="GtkLabel" id="parameters-label">
+                    <property name="label" translatable="yes">Parameters</property>
+                    <property name="xalign">0</property>
+                    <style>
+                      <class name="title-3"/>
+                    </style>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkBox" id="parameters-box">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">8</property>
+                  </object>
+                </child>
+
+                <!-- Spacer -->
+                <child>
+                  <object class="GtkBox">
+                    <property name="vexpand">true</property>
+                  </object>
+                </child>
+
+                <!-- Action Buttons -->
+                <child>
+                  <object class="GtkBox" id="button-box">
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">8</property>
+                    <property name="halign">end</property>
+
+                    <child>
+                      <object class="GtkButton" id="delete-button">
+                        <property name="label" translatable="yes">Delete</property>
+                        <style>
+                          <class name="destructive-action"/>
+                        </style>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkButton" id="duplicate-button">
+                        <property name="label" translatable="yes">Duplicate</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkButton" id="apply-button">
+                        <property name="label" translatable="yes">Apply to Diagram</property>
+                        <property name="sensitive">false</property>
+                        <style>
+                          <class name="suggested-action"/>
+                        </style>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>
