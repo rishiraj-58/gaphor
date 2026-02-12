@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="GtkWindow" id="template_browser_window">
+    <property name="title" translatable="yes">Template Browser</property>
+    <property name="default-width">900</property>
+    <property name="default-height">600</property>
+    <property name="modal">true</property>
+    <child type="titlebar">
+      <object class="GtkHeaderBar" id="header_bar">
+        <child type="start">
+          <object class="GtkButton" id="new_template_button">
+            <property name="label" translatable="yes">New Template</property>
+          </object>
+        </child>
+        <child type="title">
+          <object class="GtkSearchEntry" id="search_entry">
+            <property name="placeholder-text" translatable="yes">Search templates...</property>
+            <property name="hexpand">true</property>
+            <property name="width-chars">40</property>
+          </object>
+        </child>
+        <child type="end">
+          <object class="GtkButton" id="import_button">
+            <property name="icon-name">document-open-symbolic</property>
+            <property name="tooltip-text" translatable="yes">Import Template</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkPaned" id="main_paned">
+            <property name="orientation">horizontal</property>
+            <property name="vexpand">true</property>
+            <property name="position">200</property>
+            <property name="shrink-start-child">false</property>
+            <property name="resize-start-child">false</property>
+            <child>
+              <!-- Sidebar -->
+              <object class="GtkBox" id="sidebar">
+                <property name="orientation">vertical</property>
+                <property name="width-request">180</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">Categories</property>
+                    <property name="halign">start</property>
+                    <property name="margin-start">12</property>
+                    <property name="margin-top">12</property>
+                    <property name="margin-bottom">6</property>
+                    <style>
+                      <class name="heading"/>
+                    </style>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkScrolledWindow">
+                    <property name="vexpand">true</property>
+                    <property name="hscrollbar-policy">never</property>
+                    <child>
+                      <object class="GtkListView" id="category_list">
+                        <style>
+                          <class name="navigation-sidebar"/>
+                        </style>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkSeparator"/>
+                </child>
+                <child>
+                  <object class="GtkButton" id="add_category_button">
+                    <property name="label" translatable="yes">Add Category</property>
+                    <property name="margin-start">12</property>
+                    <property name="margin-end">12</property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">12</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <!-- Main content -->
+              <object class="GtkBox" id="main_content">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkScrolledWindow">
+                    <property name="vexpand">true</property>
+                    <child>
+                      <object class="GtkGridView" id="template_grid">
+                        <property name="min-columns">2</property>
+                        <property name="max-columns">5</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkActionBar" id="action_bar">
+                    <child type="start">
+                      <object class="GtkButton" id="delete_button">
+                        <property name="icon-name">user-trash-symbolic</property>
+                        <property name="tooltip-text" translatable="yes">Delete Template</property>
+                      </object>
+                    </child>
+                    <child type="start">
+                      <object class="GtkButton" id="export_button">
+                        <property name="icon-name">document-save-symbolic</property>
+                        <property name="tooltip-text" translatable="yes">Export Template</property>
+                      </object>
+                    </child>
+                    <child type="end">
+                      <object class="GtkButton" id="use_button">
+                        <property name="label" translatable="yes">Use Template</property>
+                        <style>
+                          <class name="suggested-action"/>
+                        </style>
+                      </object>
+                    </child>
+                    <child type="end">
+                      <object class="GtkButton" id="edit_button">
+                        <property name="label" translatable="yes">Edit</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+  
+  <!-- Category list item template -->
+  <object class="GtkBuilderListItemFactory" id="category_factory">
+    <property name="bytes"><![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="GtkListItem">
+    <property name="child">
+      <object class="GtkBox">
+        <property name="orientation">horizontal</property>
+        <property name="spacing">8</property>
+        <property name="margin-start">12</property>
+        <property name="margin-end">12</property>
+        <property name="margin-top">6</property>
+        <property name="margin-bottom">6</property>
+        <child>
+          <object class="GtkImage" id="category_icon">
+            <binding name="icon-name">
+              <lookup name="icon" type="CategoryListItem">
+                <lookup name="item">GtkListItem</lookup>
+              </lookup>
+            </binding>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="category_name">
+            <property name="hexpand">true</property>
+            <property name="halign">start</property>
+            <binding name="label">
+              <lookup name="name" type="CategoryListItem">
+                <lookup name="item">GtkListItem</lookup>
+              </lookup>
+            </binding>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="category_count">
+            <style>
+              <class name="dim-label"/>
+            </style>
+            <binding name="label">
+              <lookup name="count" type="CategoryListItem">
+                <lookup name="item">GtkListItem</lookup>
+              </lookup>
+            </binding>
+          </object>
+        </child>
+      </object>
+    </property>
+  </template>
+</interface>
+    ]]></property>
+  </object>
+  
+  <!-- Template grid item template -->
+  <object class="GtkBuilderListItemFactory" id="template_factory">
+    <property name="bytes"><![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="GtkListItem">
+    <property name="child">
+      <object class="GtkBox" id="template_item_box">
+        <property name="orientation">vertical</property>
+        <property name="spacing">4</property>
+        <property name="margin-start">8</property>
+        <property name="margin-end">8</property>
+        <property name="margin-top">8</property>
+        <property name="margin-bottom">8</property>
+        <property name="width-request">160</property>
+        <property name="height-request">180</property>
+        <child>
+          <object class="GtkFrame">
+            <child>
+              <object class="GtkPicture" id="template_thumbnail">
+                <property name="width-request">150</property>
+                <property name="height-request">100</property>
+                <property name="content-fit">contain</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="template_name">
+            <property name="ellipsize">end</property>
+            <property name="max-width-chars">20</property>
+            <style>
+              <class name="heading"/>
+            </style>
+            <binding name="label">
+              <lookup name="name" type="TemplateListItem">
+                <lookup name="item">GtkListItem</lookup>
+              </lookup>
+            </binding>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="template_description">
+            <property name="ellipsize">end</property>
+            <property name="max-width-chars">25</property>
+            <property name="lines">2</property>
+            <property name="wrap">true</property>
+            <style>
+              <class name="dim-label"/>
+            </style>
+            <binding name="label">
+              <lookup name="description" type="TemplateListItem">
+                <lookup name="item">GtkListItem</lookup>
+              </lookup>
+            </binding>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <property name="spacing">4</property>
+            <property name="halign">center</property>
+            <child>
+              <object class="GtkImage" id="template_lang_icon">
+                <property name="pixel-size">16</property>
+                <binding name="icon-name">
+                  <lookup name="modeling_language" type="TemplateListItem">
+                    <lookup name="item">GtkListItem</lookup>
+                  </lookup>
+                </binding>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="template_lang_label">
+                <style>
+                  <class name="caption"/>
+                </style>
+                <binding name="label">
+                  <lookup name="modeling_language" type="TemplateListItem">
+                    <lookup name="item">GtkListItem</lookup>
+                  </lookup>
+                </binding>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </property>
+  </template>
+</interface>
+    ]]></property>
+  </object>
+</interface>

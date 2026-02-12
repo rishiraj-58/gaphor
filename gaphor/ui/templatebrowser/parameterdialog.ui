@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="GtkWindow" id="parameter_dialog_window">
+    <property name="title" translatable="yes">Template Parameters</property>
+    <property name="default-width">400</property>
+    <property name="default-height">350</property>
+    <property name="modal">true</property>
+    <child type="titlebar">
+      <object class="GtkHeaderBar" id="param_dialog_header">
+        <child type="start">
+          <object class="GtkButton" id="param_cancel_button">
+            <property name="label" translatable="yes">Cancel</property>
+          </object>
+        </child>
+        <child type="end">
+          <object class="GtkButton" id="param_apply_button">
+            <property name="label" translatable="yes">Apply</property>
+            <style>
+              <class name="suggested-action"/>
+            </style>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkScrolledWindow">
+            <property name="vexpand">true</property>
+            <property name="hscrollbar-policy">never</property>
+            <child>
+              <object class="GtkListBox" id="param_input_list">
+                <property name="selection-mode">none</property>
+                <property name="margin-start">18</property>
+                <property name="margin-end">18</property>
+                <property name="margin-top">18</property>
+                <property name="margin-bottom">18</property>
+                <style>
+                  <class name="boxed-list"/>
+                </style>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkInfoBar" id="param_validation_bar">
+            <property name="revealed">false</property>
+            <property name="message-type">error</property>
+            <child>
+              <object class="GtkLabel" id="param_validation_label">
+                <property name="wrap">true</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

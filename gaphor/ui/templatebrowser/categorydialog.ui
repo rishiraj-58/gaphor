@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="GtkWindow" id="category_dialog_window">
+    <property name="default-width">350</property>
+    <property name="default-height">220</property>
+    <property name="modal">true</property>
+    <child type="titlebar">
+      <object class="GtkHeaderBar" id="category_dialog_header">
+        <child type="start">
+          <object class="GtkButton" id="category_cancel_button">
+            <property name="label" translatable="yes">Cancel</property>
+          </object>
+        </child>
+        <child type="end">
+          <object class="GtkButton" id="category_save_button">
+            <property name="label" translatable="yes">Save</property>
+            <style>
+              <class name="suggested-action"/>
+            </style>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkGrid" id="category_grid">
+        <property name="row-spacing">12</property>
+        <property name="column-spacing">12</property>
+        <property name="margin-start">18</property>
+        <property name="margin-end">18</property>
+        <property name="margin-top">18</property>
+        <property name="margin-bottom">18</property>
+        <!-- Name -->
+        <child>
+          <object class="GtkLabel">
+            <property name="label" translatable="yes">Name:</property>
+            <property name="halign">end</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">0</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkEntry" id="category_name_entry">
+            <property name="hexpand">true</property>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">0</property>
+            </layout>
+          </object>
+        </child>
+        <!-- Description -->
+        <child>
+          <object class="GtkLabel">
+            <property name="label" translatable="yes">Description:</property>
+            <property name="halign">end</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">1</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkEntry" id="category_desc_entry">
+            <layout>
+              <property name="column">1</property>
+              <property name="row">1</property>
+            </layout>
+          </object>
+        </child>
+        <!-- Icon -->
+        <child>
+          <object class="GtkLabel">
+            <property name="label" translatable="yes">Icon:</property>
+            <property name="halign">end</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">2</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkEntry" id="category_icon_entry">
+            <property name="text">folder-symbolic</property>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">2</property>
+            </layout>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>
