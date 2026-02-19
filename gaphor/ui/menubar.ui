@@ -90,6 +90,12 @@
       </section>
       <section>
         <item>
+          <attribute name="label" translatable="yes">Compare with…</attribute>
+          <attribute name="action">win.diagram-compare</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
           <attribute name="label" translatable="yes">Close</attribute>
           <attribute name="action">win.close-current-tab</attribute>
         </item>

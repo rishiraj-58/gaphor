@@ -577,6 +577,12 @@ def popup_model(element, modeling_language):
     part.append(gettext("_Rename"), "selection.rename")
     model.append_section(None, part)
 
+    # Add "Compare with..." option for diagrams
+    if isinstance(element, Diagram):
+        part = Gio.Menu.new()
+        part.append(gettext("Compare with…"), "win.diagram-compare")
+        model.append_section(None, part)
+
     part = Gio.Menu.new()
     diagram_submenu = create_diagram_types_model(modeling_language, element)
     if diagram_submenu.get_n_items():
