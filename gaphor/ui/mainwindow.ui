@@ -276,6 +276,12 @@
     </section>
     <section>
       <item>
+        <attribute name="label" translatable="yes">Compare with…</attribute>
+        <attribute name="action">win.compare-with-file</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
         <link name="section" id="tools-menu"/>
       </item>
     </section>
