@@ -382,4 +382,12 @@ def popup_model(element):
     part.append_item(menu_item)
     model.append_section(None, part)
 
+    # Add "Compare with..." option for diagrams
+    from gaphor.core.modeling import Diagram
+
+    if isinstance(element, Diagram):
+        compare_part = Gio.Menu.new()
+        compare_part.append(gettext("Compare with…"), "win.diagram-compare")
+        model.append_section(None, compare_part)
+
     return model
