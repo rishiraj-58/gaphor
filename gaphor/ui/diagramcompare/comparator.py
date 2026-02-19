@@ -455,6 +455,15 @@ def _element_property_names(element: Base) -> Iterator[str]:
         "model",
     }
 
+    # Prioritize common properties first for better display order
+    priority_props = ["name", "visibility", "isAbstract", "isStatic", "isFinal", "type"]
+    
+    seen = set()
+    for prop_name in priority_props:
+        if hasattr(element, prop_name) and prop_name not in skip_props:
+            seen.add(prop_name)
+            yield prop_name
+
     for prop in element.__properties__:
-        if prop.name not in skip_props:
+        if prop.name not in skip_props and prop.name not in seen:
             yield prop.name

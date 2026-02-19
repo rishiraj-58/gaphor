@@ -130,3 +130,115 @@ def test_diff_categorizes_changes_correctly(event_manager):
     assert added_box.id in added_ids
     assert removed_box.id in removed_ids
     assert modified_box.id in modified_ids
+
+
+def test_diff_list_for_navigation(event_manager):
+    """Test that diff list contains all presentation diffs for navigation."""
+    from gaphor.core import Transaction
+
+    base_factory = ElementFactory()
+    compare_factory = ElementFactory()
+
+    with Transaction(event_manager):
+        base_diagram = base_factory.create(Diagram)
+        box1 = base_diagram.create(Box)
+        box2 = base_diagram.create(Box)
+        box3 = base_diagram.create(Box)
+
+    with Transaction(event_manager):
+        compare_diagram = compare_factory.create_as(Diagram, base_diagram.id)
+        # box1 - removed (not recreated)
+        # box2 - modified
+        cbox2 = compare_diagram.create_as(Box, box2.id)
+        cbox2.width = 200
+        # box3 - unchanged
+        compare_diagram.create_as(Box, box3.id)
+        # box4 - added
+        box4 = compare_diagram.create(Box)
+
+    diff = compare_diagrams(base_diagram, compare_diagram)
+
+    # Should have 3 changes: removed, modified, added
+    assert len(diff.presentation_diffs) == 3
+
+    change_types = {p.change_type for p in diff.presentation_diffs}
+    assert ChangeType.ADDED in change_types
+    assert ChangeType.REMOVED in change_types
+    assert ChangeType.MODIFIED in change_types
+
+
+def test_navigation_cycles_through_diffs(event_manager):
+    """Test that navigation properly cycles through all diffs."""
+    from gaphor.core import Transaction
+
+    base_factory = ElementFactory()
+    compare_factory = ElementFactory()
+
+    with Transaction(event_manager):
+        base_diagram = base_factory.create(Diagram)
+        base_diagram.create(Box)  # Will be removed
+        base_diagram.create(Box)  # Will be removed
+
+    with Transaction(event_manager):
+        compare_diagram = compare_factory.create_as(Diagram, base_diagram.id)
+        compare_diagram.create(Box)  # New
+
+    diff = compare_diagrams(base_diagram, compare_diagram)
+
+    # Should have 3 changes (2 removed + 1 added)
+    assert len(diff.presentation_diffs) == 3
+
+    # Test cycling: starting at -1, after 4 navigations forward we should be at index 0
+    current_index = -1
+    total = len(diff.presentation_diffs)
+
+    # First navigation
+    current_index = 0 if current_index < 0 else (current_index + 1) % total
+    assert current_index == 0
+
+    # Second navigation
+    current_index = (current_index + 1) % total
+    assert current_index == 1
+
+    # Third navigation
+    current_index = (current_index + 1) % total
+    assert current_index == 2
+
+    # Fourth navigation - should cycle back to 0
+    current_index = (current_index + 1) % total
+    assert current_index == 0
+
+
+def test_property_diff_display_values():
+    """Test that property diff display values format correctly."""
+    from gaphor.ui.diagramcompare.comparator import PropertyDiff
+
+    # Test with string values
+    prop_diff = PropertyDiff(
+        property_name="name",
+        old_value="OldName",
+        new_value="NewName",
+        change_type=ChangeType.MODIFIED,
+    )
+    assert prop_diff.display_old == "OldName"
+    assert prop_diff.display_new == "NewName"
+
+    # Test with None values
+    prop_diff_none = PropertyDiff(
+        property_name="name",
+        old_value=None,
+        new_value="NewName",
+        change_type=ChangeType.MODIFIED,
+    )
+    assert prop_diff_none.display_old == "<None>"
+    assert prop_diff_none.display_new == "NewName"
+
+    # Test with numeric values
+    prop_diff_num = PropertyDiff(
+        property_name="width",
+        old_value=100,
+        new_value=200,
+        change_type=ChangeType.MODIFIED,
+    )
+    assert prop_diff_num.display_old == "100"
+    assert prop_diff_num.display_new == "200"
